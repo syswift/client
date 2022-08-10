@@ -85,7 +85,17 @@ const customerInformation = () => {
     
 
     const onSubmit = () => {
-
+        const customerId = document.getElementById('customerId').value;
+        const status = document.getElementById('status').value;
+        const customerName = document.getElementById('customerName').innerText;
+        const companyCode = document.getElementById('companyCode').innerText;
+        const address = document.getElementById('address').innerText;
+        const zipCode = document.getElementById('zipCode').innerText;
+        const country = document.getElementById('country').innerText;
+        //const contactP1 = document.getElementById('contactP1').innerText;
+        //const position1 = document.getElementById('position1').innerText; 
+        //const contactD1 = document.getElementById('contactD1').innerText; 
+        const email1 = document.getElementById('email1').innerText;
     }
 
     const rows = [
@@ -256,18 +266,18 @@ const customerInformation = () => {
                                                 </tr>
                                                 <tr>
                                                     <td style={{ width: '30%' }}>
-                                                        <Input placeholder="请输入客户代码" inputProps={{ 'aria-label': 'description' }} />
+                                                        <Input placeholder="请输入客户代码" id="customerId" inputProps={{ 'aria-label': 'description' }} />
                                                     </td>
                                                     <td style={{ width: '3%' }}></td>
                                                     <td style={{ width: '30%' }}>
-                                                        <Select labelId="turnoverTypeLabel" id="turnoverTypeSelect" style={{ width: '100%' }}>
+                                                        <Select labelId="turnoverTypeLabel" id="status" style={{ width: '100%' }}>
                                                             <MenuItem value="可用">可用</MenuItem>
                                                             <MenuItem value="暂不可用">暂不可用</MenuItem>
                                                         </Select>
                                                     </td>
                                                     <td style={{ width: '3%' }}></td>
                                                     <td style={{ width: '30%' }}>
-                                                        <Input placeholder="请输入客户名称" inputProps={{ 'aria-label': 'description' }} />
+                                                        <Input placeholder="请输入客户名称" id='customerName' inputProps={{ 'aria-label': 'description' }} />
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -285,7 +295,7 @@ const customerInformation = () => {
                                                 </tr>
                                                 <tr style={{ width: '100%' }}>
                                                     <td style={{ width: '30%', textAlign: 'left' }}>
-                                                        <Input placeholder="请输入公司编码" inputProps={{ 'aria-label': 'description' }} />
+                                                        <Input placeholder="请输入公司编码" id='companyCode' inputProps={{ 'aria-label': 'description' }} />
                                                     </td>
                                                     <td style={{ width: '3%' }}></td>
                                                     <td style={{ width: '30%', textAlign: 'left' }}>
@@ -301,17 +311,17 @@ const customerInformation = () => {
                                                         区:
                                                     </td>
                                                     <td style={{ width: '3%' }}></td>
-                                                    <td colspan="2" style={{ width: '60%', textAlign: 'left' }}>
+                                                    <td colspan="2"  style={{ width: '60%', textAlign: 'left' }}>
                                                         地址:
                                                     </td>
                                                 </tr>
-                                                <tr>
+                                                <tr> 
                                                     <td style={{ width: '30%', textAlign: 'left' }}>
                                                         <Input placeholder="请输入" inputProps={{ 'aria-label': 'description' }} />
                                                     </td>
                                                     <td style={{ width: '3%' }}></td>
                                                     <td colspan="2" style={{ width: '100%', textAlign: 'left' }}>
-                                                        <Input placeholder="请输入地址" inputProps={{ 'aria-label': 'description' }} />
+                                                        <Input placeholder="请输入地址" id='address' inputProps={{ 'aria-label': 'description' }} />
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -367,7 +377,7 @@ const customerInformation = () => {
                                                     </td>
                                                 </tr>
                                                 <tr>
-                                                    <td colspan="4" style={{ width: '100%', textAlign: 'left' }}>
+                                                    <td colspan="4" id='email1' style={{ width: '100%', textAlign: 'left' }}>
                                                         邮箱1:
                                                     </td>
                                                 </tr>
@@ -415,7 +425,7 @@ const customerInformation = () => {
                                             </table>
                                         </DialogContent>
                                         <DialogActions>
-                                            <Button autoFocus variant="contained" onClick={handleClickOpen} size="medium" color="primary" className={classes.margin} style={{ margin: 'auto' }}>
+                                            <Button autoFocus variant="contained" onClick={onSubmit} size="medium" color="primary" className={classes.margin} style={{ margin: 'auto' }}>
                                                 提交
                                             </Button>
                                         </DialogActions>
