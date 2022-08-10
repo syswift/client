@@ -30,8 +30,12 @@ import CloseIcon from '@material-ui/icons/Close';
 import windowsData from '../globalData'
 
 import TablePagination from '@material-ui/core/TablePagination';
+import privateRoute from '../api/privateRoute';
+import { supabase } from '../api';
+import * as ReactDOM from 'react-dom';
 
 const inventorySearch = () => {
+    privateRoute();
     // 弹窗
     const BootstrapDialog = styled(Dialog)(({ theme }) => ({
         '& .MuiDialogContent-root': {
@@ -82,21 +86,7 @@ const inventorySearch = () => {
         }
     }
 
-    const onSubmit = () => {
-
-    }
-
-    const rows = [
-        createData('CU_JS_00001', 'EU_CQ_00001', '', 'TD12', '正常库存', '8', '', '2021-12-07 09:08:48', true),
-        createData('CU_JS_00001', 'EU_CQ_00001', '', 'TD12', '正常库存', '8', '', '2021-12-07 09:08:48', true),
-        createData('CU_JS_00001', 'EU_CQ_00001', '', 'TD12', '正常库存', '8', '', '2021-12-07 09:08:48', true),
-        createData('CU_JS_00001', 'EU_CQ_00001', '', 'TD12', '正常库存', '8', '', '2021-12-07 09:08:48', true),
-        createData('CU_JS_00001', 'EU_CQ_00001', '', 'TD12', '正常库存', '8', '', '2021-12-07 09:08:48', true),
-        createData('CU_JS_00001', 'EU_CQ_00001', '', 'TD12', '正常库存', '8', '', '2021-12-07 09:08:48', true),
-        createData('CU_JS_00001', 'EU_CQ_00001', '', 'TD12', '正常库存', '8', '', '2021-12-07 09:08:48', true),
-        createData('CU_JS_00001', 'EU_CQ_00001', '', 'TD12', '正常库存', '8', '', '2021-12-07 09:08:48', true),
-        createData('CU_JS_00001', 'EU_CQ_00001', '', 'TD12', '正常库存', '8', '', '2021-12-07 09:08:48', true),
-    ];
+    const rows = [];
 
     const useStyles = makeStyles((theme) => ({
         margin: {
@@ -148,7 +138,86 @@ const inventorySearch = () => {
         setPage(0);
     };
 
+    const search = async () => {
+        //console.log('i am here');
+
+        rows= [];
+
+  
+        const boxId = document.getElementById('SboxId').value;
+        const customerId = document.getElementById('ScustomerSelect').innerText;
+        const termId = document.getElementById('SterminalSelect').innerText;
+        const providerId = document.getElementById('SsupplierSelect').innerText;
+        const boxType = document.getElementById('SinventoryTypeSelect').innerText;
+
+        console.log(boxId,customerId,termId,providerId,boxType );
+        
+        try {
+            const {data, error} = await supabase.from('box_storage').select();
+            if(error) throw error;
+
+            console.log(data);
+
+            for(const box of data)
+            {
+                //rows.push(createData(box.customerId,box.termId,box.providerId,box.boxId,box.boxType,box.amount,box.boxName,box.create_at,true));
+                if(
+                    (boxId !== null || boxId === box.boxId) &&
+                    (customerId.length < 2 || customerId === box.customerId) &&
+                    (termId.length < 2 || termId === box.termId) &&
+                    (providerId.length < 2 || providerId === box.providerId) &&
+                    (boxType.length < 2 || boxType === box.boxType)
+                    )
+                  {
+                    rows.push(createData(box.customerId,box.termId,box.providerId,box.boxId,box.boxType,box.amount,box.boxName,box.created_at,true));
+                  }
+                  else{
+                    console.log('没找到对应库存');
+                  }
+                
+            } 
+            
+            console.log(rows);
+
+            const element = document.getElementById('storageTable');
+
+            ReactDOM.render(rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                return (
+                    <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
+                    {columns.map((column) => {
+                        const value = row[column.id];
+                        return (
+                        <TableCell key={column.id} align={column.align}>
+                            {typeof value === 'boolean' ? operationStateSet(value) : value}
+                        </TableCell>
+                        );
+                    })}
+                    </TableRow>
+                );
+                }),element);
+
+           
+        } catch (error) {
+            console.log(error);
+        }  
+    }
+
+    const resetSearch = () =>{
+        const boxId = document.getElementById('SboxId').value;
+        const customerId = document.getElementById('ScustomerSelect').innerText;
+        const termId = document.getElementById('SterminalSelect').innerText;
+        const providerId = document.getElementById('SsupplierSelect').innerText;
+        const boxType = document.getElementById('SinventoryTypeSelect').innerText;
+
+    if(boxId !== '') document.getElementById('SboxId').value = '';
+    if(customerId .length > 2) document.getElementById('ScustomerSelect').innerText = '';
+    if(termId.length > 2) document.getElementById('SterminalSelect').innerText = '';
+    if(providerId.length > 2) document.getElementById('SsupplierSelect').innerText = '';
+    if(boxType.length > 2) document.getElementById('SinventoryTypeSelect').innerText = '';
+    }
+
     return (
+        
         <div style={{
             width: `calc(100% - ${windowsData.drawerWidth}px)`,
             height: 'calc(100% - 64px)',
@@ -173,7 +242,7 @@ const inventorySearch = () => {
                                 <td style={{ width: '10%', textAlign: 'right' }}>周转箱代码:</td>
                                 <td style={{ width: '2%' }}></td>
                                 <td style={{ width: '10%' }}>
-                                    <Input placeholder="请输入周转箱代码" inputProps={{ 'aria-label': 'description' }} />
+                                    <Input placeholder="请输入周转箱代码" id="SboxId" inputProps={{ 'aria-label': 'description' }} />
                                 </td>
                                 <td style={{ width: '10%', textAlign: 'right' }}>客户代码:</td>
                                 <td style={{ width: '2%' }}></td>
@@ -224,7 +293,7 @@ const inventorySearch = () => {
                                 <td style={{ width: '10%', textAlign: 'right' }}>库存类型:</td>
                                 <td style={{ width: '2%' }}></td>
                                 <td style={{ width: '10%' }}>
-                                    <Select labelId="inventoryTypeLabel" id="inventoryTypeSelect" style={{ width: '100%' }}>
+                                    <Select labelId="inventoryTypeLabel" id="SinventoryTypeSelect" style={{ width: '100%' }}>
                                         <MenuItem value="正常库存">正常库存</MenuItem>
                                         <MenuItem value="非正常库存">非正常库存</MenuItem>
                                     </Select>
@@ -234,8 +303,16 @@ const inventorySearch = () => {
                     </div>
                     <div>
                         <center>
-                            <Button variant="outlined" color="primary">查询</Button>
-                            <br/><br/>
+                            <Button variant="outlined" color="primary" onClick={search}>查询</Button>
+                            &emsp;&emsp;
+
+                            <span>
+                            <Button variant="outlined" onClick={resetSearch} color="primary">
+                                重置
+                            </Button>
+                            </span>
+                            <br></br>
+                            <br></br>
                         </center>
                     </div>
                 </Paper>
@@ -245,32 +322,21 @@ const inventorySearch = () => {
             <TableContainer component={Paper} sx={{maxHeight: '500px'}}>
                 <Table stickyHeader aria-label="sticky table">
                     <TableHead>
-                        <TableRow>
-                            {columns.map((column) => (
-                                <TableCell
-                                    key={column.id}
-                                    align={column.align}
-                                    style={{ minWidth: column.minWidth }}>
-                                    {column.label}
-                                </TableCell>
-                            ))}
+                        <TableRow >
+                            {
+                        columns.map((column) => (
+                         <TableCell
+                            key={column.id}
+                            align={column.align}
+                            style={{ minWidth: column.minWidth }}>
+                            {column.label}
+                        </TableCell>
+                        ))}
+
                         </TableRow>
                     </TableHead>
-                    <TableBody>
-                        {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                        return (
-                            <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
-                            {columns.map((column) => {
-                                const value = row[column.id];
-                                return (
-                                <TableCell key={column.id} align={column.align}>
-                                    {typeof value === 'boolean' ? operationStateSet(value) : value}
-                                </TableCell>
-                                );
-                            })}
-                            </TableRow>
-                        );
-                        })}
+                    <TableBody id="storageTable">
+                        
                     </TableBody>
                 </Table>
             </TableContainer>

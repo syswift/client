@@ -4,8 +4,12 @@ import Navbar from '../component/navbar';
 import buildClient from '../api/build-client';
 import Head from 'next/head';
 import { supabase } from '../api';
+import Router from 'next/router';
+//import { RouteGuard } from '../api/RouteGuard';
+//import privateRoute from '../api/privateRoute';
 
 const global = ({Component, pageProps}) =>{
+    
     return (
     <div>     
         <Head>
@@ -19,7 +23,7 @@ const global = ({Component, pageProps}) =>{
 }
 
 global.getInitialProps = async (appContext) => {
-    //const { data } = await buildClient(appContext.ctx);
+    //const { data } = await buildClient(appContext.ctx) 
 
     let pageProps;
     if(appContext.Component.getInitialProps) {

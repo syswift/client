@@ -1,6 +1,8 @@
 import buildClient from '../api/build-client';
+import privateRoute from '../api/privateRoute';
 
 const mainPage = () => {
+    privateRoute();
 
     return <h1 className='head1'></h1>;
 };

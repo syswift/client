@@ -38,9 +38,20 @@ import Pagination from '@mui/material/Pagination';
 import { format } from "date-fns";
 import { TextField } from '@mui/material';
 import { supabase } from '../api';
+import Router from 'next/router';
+import privateRoute from '../api/privateRoute';
+import { DEFAULT_COLOR_SCHEME_STORAGE_KEY } from '@mui/system/cssVars/getInitColorSchemeScript';
 
 // 弹窗
 const trans = () => {
+  privateRoute();
+
+  React.useEffect(() => {
+    // checks if the user is authenticated
+    const user = supabase.auth.user();
+    if(!user) Router.push('/auth/loginPage');
+  }, []);
+
   const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
       padding: theme.spacing(2),
@@ -178,6 +189,7 @@ const ondelete = async (event) =>{
     founders: '',
     createTime: '',
     operation: false,
+    boxNo: 0
   });
 
   // 按钮组件
@@ -185,6 +197,7 @@ const ondelete = async (event) =>{
   // 弹窗
   const [open, setOpen] = React.useState(false);
   const handleClickOpen = () => {
+    value.boxNo = 0;
     setOpen(true);
   };
   const handleClose = () => {
@@ -316,13 +329,57 @@ const ondelete = async (event) =>{
               turnoverCodeSelect: []
           });
           }
+          
           else{
+                //insert box storage
+                try {
+                  for (let i = 0; i < value.boxNo; i++) {
+                    const boxId = document.getElementById('turnoverCodeSelect'+i).innerText;
+                    const amount = document.getElementById('boxNumSelect'+i).value;
+            
+                    console.log(boxId);
+                    console.log(amount);
+            
+                    const customerId = customerSelect;
+                    const termId = terminalSelect;
+            
+                    const exit = await supabase.from('box_storage').select().match({
+                        customerId: customerId,
+                        termId: termId,
+                        boxId: boxId
+                    }).single();
+                    console.log(exit);
+                    
+                            if(exit.body)
+                            {
+                              const{res , error} = await supabase.from('box_storage').update({
+                                  amount: Number(exit.data.amount)+Number(amount)
+                                }).match({
+                                  customerId: customerId,
+                                  termId: termId,
+                                  boxId: boxId
+                                });
+                              if(error) throw error;
+                            }
+                            else{
+                              const{res , error} = await supabase.from('box_storage').insert({
+                                customerId: customerId,
+                                termId: termId,
+                                boxId: boxId,
+                                amount: Number(amount)
+                              });
+                            if(error) throw error;
+                            }
+                          }
+                        } catch (error) {
+                          console.log(error);
+                   }
   
             try{
                 const processPer = processObj.body.name;
                 const currentDate = getDate();
 
-                console.log(processPer);
+                //console.log(processPer);
 
                 const { upload, error } = await supabase.from('trans').insert([
                   {
@@ -356,27 +413,36 @@ const ondelete = async (event) =>{
           }
   }
   
-  const handleBoxChange = () =>{
+  const deleteBox = (event) => {/*
+    const currentTarget = event.currentTarget.id;
+    const deleteTarget = "boxRow"+currentTarget.substring(9);
+    console.log(deleteTarget);
+    
+    document.getElementById(deleteTarget).remove();
+    value.boxNo--;
+    console.log(value.boxNo);
+*/}
 
-  }
-
-  let boxNo = 0;
 
   const newBox =()=>{
 
     const element = document.getElementById('transboxes');
 
+    if(value.boxNo!==0) value.boxNo++;
+    else value.boxNo+=2;
+    console.log(value.boxNo);
+
     let tmp = [];
-    boxNo ++;
-    console.log(boxNo);
-    for (let i = 0; i < boxNo; i++) {
+
+    
+    for (let i = 0; i < value.boxNo; i++) {
       tmp.push(i);
     }
 
     ReactDOM.render(tmp.map((res)=>
-    <TableRow id={res}>                                                        
+    <TableRow id={"boxRow"+res}>                                                        
     <TableCell>
-    <Select labelId="turnoverCodeLabel" id={'turnoverCodeSelect'+res} onChange={handleBoxChange('code',res)} style={{width: '100%' }} >
+    <Select labelId="turnoverCodeLabel" id={'turnoverCodeSelect'+res} style={{width: '100%' }} >
       <MenuItem value="EU_HB_00001">CN108427574B</MenuItem>
       <MenuItem value="EU_AH_00001">CN757667896C</MenuItem>
       <MenuItem value="EU_AH_00002">CN435346678A</MenuItem>
@@ -385,16 +451,22 @@ const ondelete = async (event) =>{
       </Select>
     </TableCell>  
     <TableCell>
-      <TextField margin="normal" inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} onChange={handleBoxChange('amount',res)} style={{width: '50%' }}/>
+      <Input margin="normal" id={'boxNumSelect'+res} inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} style={{width: '50%' }}/>
     </TableCell>
     <TableCell>
-    <IconButton aria-label="delete">
+      {
+      res !== 0
+      ?<IconButton aria-label="delete" id={'boxDelete'+res} onClick={deleteBox}>
       <DeleteIcon />
-    </IconButton>
+      </IconButton>
+      :<IconButton aria-label="delete" id={'boxDelete'+res} onClick={deleteBox}>
+      </IconButton>
+      }
     </TableCell>
     </TableRow>
     )
     ,element);
+
   }
 
   const resetSearch = () =>{
@@ -580,7 +652,23 @@ const ondelete = async (event) =>{
                               </TableRow>
                             </TableHead>
                               <TableBody id="transboxes">
-
+                              <TableRow id={"boxRow"+0}>                                                        
+                              <TableCell>
+                              <Select labelId="turnoverCodeLabel" id={'turnoverCodeSelect'+0} style={{width: '100%' }} >
+                                <MenuItem value="EU_HB_00001">CN108427574B</MenuItem>
+                                <MenuItem value="EU_AH_00001">CN757667896C</MenuItem>
+                                <MenuItem value="EU_AH_00002">CN435346678A</MenuItem>
+                                <MenuItem value="EU_NMG_00001">CN224567574B</MenuItem>
+                                <MenuItem value="EU_BJ_00001">CN967865756C</MenuItem>
+                                </Select>
+                              </TableCell>  
+                              <TableCell>
+                                <Input margin="normal" id={'boxNumSelect'+0} inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} style={{width: '50%' }}/>
+                              </TableCell>
+                              <TableCell>
+                              <IconButton aria-label="delete" id={'boxDelete'+0} onClick={deleteBox}/>
+                              </TableCell>
+                              </TableRow>
                             </TableBody>
                           </Table>
                         </TableContainer>
