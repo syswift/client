@@ -9,12 +9,31 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "12.2.4",
-    "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "@supabase/supabase-js": "latest",
+    "@supabase/ui": "latest",
+    "@tailwindcss/typography": "latest",
+    "autoprefixer": "latest",
+    "easymde": "latest",
+    "next": "latest",
+    "postcss": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "react-markdown": "latest",
+    "react-simplemde-editor": "latest",
+    "tailwindcss": "latest",
+    "uuid": "latest",
+    "@emotion/react": "latest",
+    "@emotion/styled": "latest",
+    "@material-ui/core": "latest",
+    "@material-ui/icons": "latest",
+    "@material-ui/lab": "latest",
+    "@mui/material": "latest",
+    "axios": "latest",
+    "date-fns": "latest",
+    "material-ui-popup-state": "latest"
   },
   "devDependencies": {
-    "eslint": "8.21.0",
-    "eslint-config-next": "12.2.4"
+    "eslint": "latest",
+    "eslint-config-next": "latest"
   }
 }
