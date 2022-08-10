@@ -30,9 +30,11 @@ import CloseIcon from '@material-ui/icons/Close';
 import windowsData from '../globalData'
 
 import TablePagination from '@material-ui/core/TablePagination';
+import privateRoute from '../api/privateRoute';
 
 const supplierInformation = () => {
     // 弹窗
+    privateRoute();
     const BootstrapDialog = styled(Dialog)(({ theme }) => ({
         '& .MuiDialogContent-root': {
             padding: theme.spacing(2),

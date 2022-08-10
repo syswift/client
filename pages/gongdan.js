@@ -33,11 +33,12 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import windowsData from '../globalData'
 
 import Pagination from '@mui/material/Pagination';
-
+import privateRoute from '../api/privateRoute';
 
 // 弹窗
 
 const gongdan = () => {
+    privateRoute();
     const BootstrapDialog = styled(Dialog)(({ theme }) => ({
         '& .MuiDialogContent-root': {
             padding: theme.spacing(2),
