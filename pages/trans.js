@@ -37,6 +37,7 @@ import axios from 'axios';
 import Pagination from '@mui/material/Pagination';
 import { format } from "date-fns";
 import { TextField } from '@mui/material';
+import { supabase } from '../api';
 
 // 弹窗
 const trans = () => {
@@ -89,17 +90,19 @@ const trans = () => {
   }
 
 const transFinish = async (transId) =>{
-  const processPer = await axios.get('/api/auth/currentuser');
 
-  const res = await axios.post('/api/management/transfinish',{
-    transId: transId,
-    processPer: processPer.data.currentUser.email
-    
-  });
+  try {
+    const { res , error } = await supabase.from('trans').update({transState: 'false'}).match({transId: transId}); 
 
-  console.log(res);
+    if(error) throw error;
 
-  search();
+    console.log(res);
+
+    search();
+
+  } catch (error) {
+    console.log(error);
+  }
 
 }
 
@@ -114,10 +117,24 @@ const finish = (event) => {
 
 const ondelete = async (event) =>{
   const transId = event.currentTarget.id.substring(6);
-  const res = await axios.get('/api/management/transdelete/'+transId);
-  alert(JSON.stringify(res.data));
 
+  try {
+    const { res, error } = await supabase
+  .from('trans')
+  .delete()
+  .match({ transId: transId })
+
+  if(error) throw error;
+
+  console.log(res);
+  
   search();
+  } catch (error) {
+    console.log(error);
+  }
+  
+
+  
 }
 
   // 周转类型的判断
@@ -196,8 +213,8 @@ const ondelete = async (event) =>{
     }
 
     const search = async () => {
-      const processPer = await axios.get('/api/auth/currentuser');
-      if(processPer.data.currentUser === null)
+      const processPer = await supabase.from('profiles').select().eq('id',supabase.auth.user().id).single();
+      if(!processPer)
       {
               alert('请登录账号');
       }
@@ -208,20 +225,20 @@ const ondelete = async (event) =>{
         const termId = document.getElementById('SterminalSelect').innerText;
         const transStateString = document.getElementById('SturnoverStateSelect').innerText;
         const transType = document.getElementById('SturnoverTypeSelect').innerText;
+        
 
         //console.log(transStateString);
 
         const transState = (transStateString === '新增' ? true : transStateString === '完成' ? false : null);
     
-        const all = await axios.post('/api/management/transdownload',{
-          processPer: processPer.data.currentUser.email
-        });
+        const all = await supabase.from('trans').select().eq('processPer', processPer.body.name);
+        console.log(all);
     
         const alltrans = [];
 
         //alert(customerId.length);
     
-        for(const tran of all.data.allTrans)
+        for(const tran of all.data)
         {
           if(
             (transId === '' || transId === tran.transId) &&
@@ -231,11 +248,8 @@ const ondelete = async (event) =>{
             (transType.length < 2 || transType === tran.transType)
             )
           {
-            const res = await axios.post('/api/auth/username',{
-              email: processPer.data.currentUser.email
-            });
             //alert(customerId +' '+ termId + ' '+transState);
-            alltrans.push(createData(tran.transId,tran.customerId,tran.termId,tran.transState,tran.transType,res.data.username.userName,tran.createTime,true));
+            alltrans.push(createData(tran.transId,tran.customerId,tran.termId,tran.transState,tran.transType,tran.processPer,tran.createTime,tran.transState));
           }
           else{
             console.log('没找到对应周转单');
@@ -272,9 +286,9 @@ const ondelete = async (event) =>{
           const terminalSelect = document.getElementById('terminalSelect').innerText;
           const turnoverTypeSelect = document.getElementById('turnoverTypeSelect').innerText;
           //const turnoverCodeSelect = value.turnoverCodeSelect;
-          const processObj = await axios.get('/api/auth/currentuser');
+          const processObj = await supabase.from('profiles').select().eq('id',supabase.auth.user().id).single();
 
-          if(processObj.data.currentUser === null)
+          if(processObj === null)
           {
             alert('请登录账号');
 
@@ -305,20 +319,24 @@ const ondelete = async (event) =>{
           else{
   
             try{
-                const processPer = processObj.data.currentUser.email;
+                const processPer = processObj.body.name;
                 const currentDate = getDate();
 
-                //alert(processPer);
+                console.log(processPer);
 
-                await axios.post('/api/management/transupload', {
-                  transId: transId,
-                  customerId: customerSelect,
-                  termId: terminalSelect,
-                  transState: true,
-                  transType: turnoverTypeSelect,
-                  processPer: processPer,
-                  createTime: currentDate
-                })
+                const { upload, error } = await supabase.from('trans').insert([
+                  {
+                    transId: transId,
+                    customerId: customerSelect,
+                    termId: terminalSelect,
+                    transState: true,
+                    transType: turnoverTypeSelect,
+                    processPer: processPer,
+                    createTime: currentDate
+                  }
+                ]);
+
+                if(error) throw error;
 
                 setValue({...value,
                   transId:'',
@@ -332,9 +350,8 @@ const ondelete = async (event) =>{
                 setOpen(false);
                 //success upload
             } 
-            catch (err) {
-                value.errors = err.response.data.errors;
-                alert(JSON.stringify(value.errors));
+            catch (error) {
+                console.log(error);
             }
           }
   }

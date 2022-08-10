@@ -70,7 +70,7 @@ const signup = () => {
         })
         if(error) alert(error);
         else {
-            const profile = await supabase.from('profiles').insert([
+            const { profile, error } = await supabase.from('profiles').insert([
                 { id: user.id, name:userName }
               ]);
             console.log(profile);

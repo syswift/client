@@ -35,6 +35,7 @@ import TreeItem from '@material-ui/lab/TreeItem';
 import TreeView from '@material-ui/lab/TreeView';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { display } from '@mui/system';
+import { supabase } from '../api';
 
 // const drawerWidth = 240;
 
@@ -100,10 +101,11 @@ const useStyles = makeStyles((theme) => ({
     },
   }));
 
-const Navbar =({currentUser})=>{
+const Navbar =()=>{
     const classes = useStyles();
     const theme = useTheme();
     const [open, setOpen] = React.useState(true);
+    const currentUser = supabase.auth.user();
 
     const handleDrawerOpen = () => {
         windowsData.drawerWidth=240;
