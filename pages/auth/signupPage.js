@@ -71,7 +71,7 @@ const signup = () => {
         if(error) alert(error);
         else {
             const { profile, error } = await supabase.from('profiles').insert([
-                { id: user.id, name:userName }
+                { id: user.id, name:userName, auth_level:'管理' }
               ]);
             console.log(profile);
             Router.push('/');
