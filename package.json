@@ -30,7 +30,9 @@
     "@mui/material": "latest",
     "axios": "latest",
     "date-fns": "latest",
-    "material-ui-popup-state": "latest"
+    "material-ui-popup-state": "latest",
+    "echarts": "latest",
+    "echarts-for-react": "latest"
   },
   "devDependencies": {
     "eslint": "latest",
