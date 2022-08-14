@@ -16,6 +16,8 @@ const mainPage = () => {
     privateRoute();
     
     React.useEffect(async() => {
+
+      projects = [];
       const processPer = supabase.auth.user().id;
       const all = await supabase.from('project').select().eq('processPer', processPer);
       console.log(all);
