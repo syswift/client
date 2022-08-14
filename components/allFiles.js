@@ -28,16 +28,20 @@ const Allfiles = () => {
         //alert(filename);
 
         try {
-            const { data, error } = await supabase
+            const { signedURL, error } = await supabase
             .storage
             .from('userfiles')
-            .download(`${user.id}/${filename}`)
+            .createSignedUrl(`${user.id}/${filename}`, 60)
 
             if(error) throw error;
 
             console.log('success!');
 
-            const url = URL.createObjectURL(data);
+            const element = document.getElementById('download');
+
+            ReactDOM.render((
+                <a class="nav-link" href={signedURL} download>请在60秒之内点击这里下载文件</a>
+            ),element)
         } catch (error) {
             console.log(error);
         }
@@ -93,9 +97,10 @@ const Allfiles = () => {
                   </TableCell>
                   <TableCell key={f.name} variant="outlined">
                   <Stack spacing={2} direction="row">
-                    <Button variant="contained" id={'download'+f.name} onClick={downloadfile}>下载</Button>
+                    <Button variant="contained" id={'download'+f.name} onClick={downloadfile}>获得下载地址</Button>
                     <Button variant="contained" color="error" id={'delete'+f.name} onClick={deletefile}>删除</Button>
-                  </Stack>
+                    <div id='download'></div>
+                  </Stack> 
                   </TableCell>
             </TableRow>
             :<></>
