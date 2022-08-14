@@ -31,6 +31,8 @@ import windowsData from '../globalData'
 
 import TablePagination from '@material-ui/core/TablePagination';
 import privateRoute from '../api/privateRoute';
+import { supabase } from '../api';
+import * as ReactDOM from 'react-dom';
 
 const customerInformation = () => {
     privateRoute();
@@ -84,38 +86,65 @@ const customerInformation = () => {
     }
     
 
-    const onSubmit = () => {
+    const onSubmit = async () => {
         const customerId = document.getElementById('customerId').value;
-        const status = document.getElementById('status').value;
-        const customerName = document.getElementById('customerName').innerText;
-        const companyCode = document.getElementById('companyCode').innerText;
-        const address = document.getElementById('address').innerText;
-        const zipCode = document.getElementById('zipCode').innerText;
-        const country = document.getElementById('country').innerText;
+        const statusString = document.getElementById('status').innerText;
+        const customerName = document.getElementById('customerName').value;
+        const companyCode = document.getElementById('companyCode').value;
+        const address = document.getElementById('address').value;
+        const zipCode = document.getElementById('zipCode').value;
+        const country = document.getElementById('country').value;
         //const contactP1 = document.getElementById('contactP1').innerText;
         //const position1 = document.getElementById('position1').innerText; 
         //const contactD1 = document.getElementById('contactD1').innerText; 
-        const email1 = document.getElementById('email1').innerText;
+        const email1 = document.getElementById('email1').value;
+        const processObj = await supabase.from('profiles').select().eq('id',supabase.auth.user().id).single();
+
+        const status = (statusString === '可用' ? true : statusString === '暂不可用' ? false : null);
+
+        console.log(customerId,status,customerName,companyCode);
+
+        if(customerId === '' ||
+            status === '' ||
+            customerName === '' ||
+            companyCode === ''
+            )
+        {
+            alert('请填写所有必要信息');
+        }
+        else{
+            try{
+                const processPer = processObj.body.name;
+
+                //console.log(processPer);
+
+                const { upload, error } = await supabase.from('customer').insert([
+                  {
+                    customerId: customerId,
+                    status: status,
+                    customerName: customerName,
+                    companyCode: companyCode,
+                    address: address,
+                    zipCode: zipCode,
+                    country: country,
+                    email1: email1,
+                    processPer: processPer
+                  }
+                ]);
+
+                if(error) throw error;
+      
+                //search();
+                setOpen(false);
+                //success upload
+            } 
+            catch (error) {
+                console.log(error);
+            }
+        }
     }
 
-    const rows = [
-        createData('FC_AH_00001', '芜湖固美', 'FC_AH_00001', true, '', '', '', '', '', '', '', '', '', '', '', '', ''),
-        createData('FC_AH_00001', '芜湖固美', 'FC_AH_00001', false, '', '', '', '', '', '', '', '', '', '', '', '', ''),
-        createData('FC_AH_00001', '芜湖固美', 'FC_AH_00001', true, '', '', '', '', '', '', '', '', '', '', '', '', ''),
-        createData('FC_AH_00001', '芜湖固美', 'FC_AH_00001', true, '', '', '', '', '', '', '', '', '', '', '', '', ''),
-        createData('FC_AH_00001', '芜湖固美', 'FC_AH_00001', true, '', '', '', '', '', '', '', '', '', '', '', '', ''),
-        createData('FC_AH_00001', '芜湖固美', 'FC_AH_00001', true, '', '', '', '', '', '', '', '', '', '', '', '', ''),
-        createData('FC_AH_00001', '芜湖固美', 'FC_AH_00001', true, '', '', '', '', '', '', '', '', '', '', '', '', ''),
-        createData('FC_AH_00001', '芜湖固美', 'FC_AH_00001', true, '', '', '', '', '', '', '', '', '', '', '', '', ''),
-        createData('FC_AH_00001', '芜湖固美', 'FC_AH_00001', true, '', '', '', '', '', '', '', '', '', '', '', '', ''),
-        createData('FC_AH_00001', '芜湖固美', 'FC_AH_00001', true, '', '', '', '', '', '', '', '', '', '', '', '', ''),
-        createData('FC_AH_00001', '芜湖固美', 'FC_AH_00001', true, '', '', '', '', '', '', '', '', '', '', '', '', ''),
-        createData('FC_AH_00001', '芜湖固美', 'FC_AH_00001', true, '', '', '', '', '', '', '', '', '', '', '', '', ''),
-        createData('FC_AH_00001', '芜湖固美', 'FC_AH_00001', true, '', '', '', '', '', '', '', '', '', '', '', '', ''),
-        createData('FC_AH_00001', '芜湖固美', 'FC_AH_00001', true, '', '', '', '', '', '', '', '', '', '', '', '', ''),
-        createData('FC_AH_00001', '芜湖固美', 'FC_AH_00001', true, '', '', '', '', '', '', '', '', '', '', '', '', ''),
-        createData('FC_AH_00001', '芜湖固美', 'FC_AH_00001', true, '', '', '', '', '', '', '', '', '', '', '', '', ''),
-    ];
+    let rows = [];
 
     const useStyles = makeStyles((theme) => ({
         margin: {
@@ -174,6 +203,79 @@ const customerInformation = () => {
         setPage(0);
     };
 
+    const search = async () => {
+
+        rows = [];
+
+        const processPer = await supabase.from('profiles').select().eq('id',supabase.auth.user().id).single();
+
+        const customerId = document.getElementById('ScustomerId').value;
+        const customerName = document.getElementById('ScustomerName').value;
+        const statusString = document.getElementById('Stype').innerHTML;
+        
+        const status = (statusString === '可用' ? true : statusString === '暂不可用' ? false : null);
+
+        const all = await supabase.from('customer').select().eq('processPer', processPer.body.name);
+        console.log(customerId,customerName,status);
+
+        for(const customer of all.data)
+        {
+            if(
+                (customerId === '' || customerId === customer.customerId) &&
+                (customerName === '' || customerName === customer.customerName) &&
+                (status === null || status === customer.status)
+            )
+            {
+                //(customerCode, customerName, companyCode, dataState, province, city, district, address, country, countryCode, contact1, position1, phone1, email1, contact2, position2, phone2, email2)
+                rows.push(createData(customer.customerId, customer.customerName, customer.companyCode, customer.status, '','','',customer.address,customer.country, customer.countryCode,
+                             customer.contactP1,customer.position1,customer.contactD1,customer.email1,
+                             '','','',''))
+            }
+        }
+        console.log(rows);
+
+        const element = document.getElementById('customerDetail');
+
+        ReactDOM.render(
+            rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                return (
+                    <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
+                    {columns.map((column) => {
+                        const value = row[column.id];
+
+                        if(column.id !== 'customerCode')
+                        { return (
+                        <TableCell key={column.id} align={column.align}>
+                            {typeof value === 'boolean' ? dataStateSet(value) : value}
+                        </TableCell>
+                        );
+                        }
+                        else{
+                            return (
+                            <TableCell key={column.id} align={column.align}>
+                                <Button id={column.id} variant="outlined">{typeof value === 'boolean' ? dataStateSet(value) : value}</Button>
+                            </TableCell>
+                            )
+                        }
+                    })}
+                    </TableRow>
+                );
+                })
+        ,element);
+    }
+
+    const resetSearch = () =>{
+        const customerId = document.getElementById('ScustomerId').value;
+        const customerName = document.getElementById('ScustomerName').value;
+        const statusString = document.getElementById('Stype').innerHTML;
+    
+        const status = (statusString === '可用' ? true : statusString === '暂不可用' ? false : null);
+    
+        if(customerId !== '') document.getElementById('ScustomerId').value = '';
+        if(customerName !== '') document.getElementById('ScustomerName').value = '';
+        if(status !== null) document.getElementById('Stype').innerText = '';
+      }
+
     return (
         <div style={{
             width: `calc(100% - ${windowsData.drawerWidth}px)`,
@@ -190,7 +292,7 @@ const customerInformation = () => {
                         textColor="primary"
                         onChange={handleChange}
                         aria-label="disabled tabs example">
-                        <Tab label="供应商信息" />
+                        <Tab label="客户信息" />
                     </Tabs>
                     <div>
                         <table>
@@ -199,22 +301,12 @@ const customerInformation = () => {
                                 <td style={{ width: '10%', textAlign: 'right' }}>客户代码:</td>
                                 <td style={{ width: '2%' }}></td>
                                 <td style={{ width: '10%' }}>
-                                    <Input placeholder="请输入供应商代码" inputProps={{ 'aria-label': 'description' }} />
+                                    <Input placeholder="请输入客户代码" id='ScustomerId' inputProps={{ 'aria-label': 'description' }} />
                                 </td>
                                 <td style={{ width: '10%', textAlign: 'right' }}>客户名称:</td>
                                 <td style={{ width: '2%' }}></td>
                                 <td style={{ width: '10%' }}>
-                                    <Input placeholder="请输入供应商名称" inputProps={{ 'aria-label': 'description' }} />
-                                </td>
-                                <td style={{ width: '10%', textAlign: 'right' }}>联系人:</td>
-                                <td style={{ width: '2%' }}></td>
-                                <td style={{ width: '10%' }}>
-                                    <Input placeholder="请输入联系人" inputProps={{ 'aria-label': 'description' }} />
-                                </td>
-                                <td style={{ width: '10%', textAlign: 'right' }}>联系方式:</td>
-                                <td style={{ width: '2%' }}></td>
-                                <td style={{ width: '10%' }}>
-                                    <Input placeholder="请输入联系方式" inputProps={{ 'aria-label': 'description' }} />
+                                    <Input placeholder="请输入客户名称" id='ScustomerName' inputProps={{ 'aria-label': 'description' }} />
                                 </td>
                                 <td>
 
@@ -226,9 +318,9 @@ const customerInformation = () => {
                                 <td style={{ width: '10%', textAlign: 'right' }}>状态:</td>
                                 <td style={{ width: '2%' }}></td>
                                 <td style={{ width: '10%' }}>
-                                    <Select labelId="turnoverTypeLabel" id="turnoverTypeSelect" style={{ width: '100%' }}>
-                                        <MenuItem value="正向周转">可用</MenuItem>
-                                        <MenuItem value="逆向周转">暂不可用</MenuItem>
+                                    <Select labelId="turnoverTypeLabel" id='Stype' style={{ width: '100%' }}>
+                                        <MenuItem value="可用">可用</MenuItem>
+                                        <MenuItem value="暂不可用">暂不可用</MenuItem>
                                     </Select>
                                 </td>
                             </tr>
@@ -339,11 +431,11 @@ const customerInformation = () => {
                                                 </tr>
                                                 <tr>
                                                     <td style={{ width: '30%', textAlign: 'left' }}>
-                                                        <Input placeholder="请输入" inputProps={{ 'aria-label': 'description' }} />
+                                                        <Input placeholder="请输入" id='zipCode' inputProps={{ 'aria-label': 'description' }} />
                                                     </td>
                                                     <td style={{ width: '3%' }}></td>
                                                     <td style={{ width: '30%', textAlign: 'left' }}>
-                                                        <Input placeholder="请输入" inputProps={{ 'aria-label': 'description' }} />
+                                                        <Input placeholder="请输入" id='country' inputProps={{ 'aria-label': 'description' }} />
                                                     </td>
                                                     <td style={{ width: '3%' }}></td>
                                                     <td style={{ width: '30%', textAlign: 'left' }}>
@@ -433,9 +525,17 @@ const customerInformation = () => {
                                 </span>
                                 &emsp;&emsp;
                                 <span>
-                                    <Button variant="outlined" color="primary">
+                                    <Button variant="outlined" color="primary" onClick={search}>
                                         查询
                                     </Button>
+                                </span>
+
+                                &emsp;&emsp;
+
+                                <span>
+                                <Button variant="outlined" onClick={resetSearch} color="primary">
+                                    重置
+                                </Button>
                                 </span>
                             </form>
                             <br></br>
@@ -460,7 +560,7 @@ const customerInformation = () => {
                             ))}
                         </TableRow>
                     </TableHead>
-                    <TableBody>
+                    <TableBody id='customerDetail'>
                         {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                         return (
                             <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
