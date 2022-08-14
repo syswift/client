@@ -89,13 +89,10 @@ const gongdan = () => {
         }
     }
 
-    const banish = () =>{
-
-    }
 
     const gongdanFinish = async (gongdanId) =>{
         try {
-            const { data , error } = await supabase.from('gongdan').update({status:'false',gongdanState: 'false'}).match({gongdanId: gongdanId}); 
+            const { data , error } = await supabase.from('gongdan').update({status:false, gongdanState: false}).match({gongdanId: gongdanId}); 
         
             if(error) throw error;
         
@@ -132,7 +129,26 @@ const gongdan = () => {
           console.log(error);
         }
         
-      }
+    }
+
+    const banish = async (event) =>{
+        const gongdanId = event.currentTarget.id.substring(6);
+
+        try {
+            const { data , error } = await supabase.from('gongdan')
+            .update({type: '报废'})
+            .match({gongdanId: gongdanId}); 
+        
+            if(error) throw error;
+        
+            console.log(data);
+        
+            search();
+        
+          } catch (error) {
+            console.log(error);
+          }
+    }
 
     // 工单类型的判断
     function operationState(flag, gongdanId) {
