@@ -36,6 +36,31 @@ import * as ReactDOM from 'react-dom';
 
 const inventorySearch = () => {
     privateRoute();
+
+
+    React.useEffect(async() => {
+        // checks if the user is authenticated
+        const processPer = await supabase.from('profiles').select().eq('id',supabase.auth.user().id).single();
+    
+        const all = await supabase.from('customer').select().match({
+          processPer: processPer.body.name,
+          projectName: processPer.body.currentProject
+        });
+    
+        //console.log(all);
+    
+        const element = document.getElementById('ScustomerDiv');
+    
+        ReactDOM.render(<div>
+          <Select labelId="customerLabel" id="ScustomerSelect" style={{ width: '100%' }}>
+            {all.data.map((customer)=>{ return (
+          <MenuItem value={customer.customerId}>{customer.customerId}</MenuItem>
+           ) })}
+        </Select>
+        </div>,element);
+    
+      }, []);
+
     // 弹窗
     const BootstrapDialog = styled(Dialog)(({ theme }) => ({
         '& .MuiDialogContent-root': {
@@ -252,15 +277,7 @@ const inventorySearch = () => {
                                 </td>
                                 <td style={{ width: '10%', textAlign: 'right' }}>客户代码:</td>
                                 <td style={{ width: '2%' }}></td>
-                                <td style={{ width: '10%' }}>
-                                    <Select labelId="customerLabel" id="ScustomerSelect" style={{ width: '100%' }}>
-                                        <MenuItem value="CU_JS00001">CU_JS00001</MenuItem>
-                                        <MenuItem value="CU_JS00002">CU_JS00002</MenuItem>
-                                        <MenuItem value="CU_JS00003">CU_JS00003</MenuItem>
-                                        <MenuItem value="CU_JS00004">CU_JS00004</MenuItem>
-                                        <MenuItem value="CU_JS00005">CU_JS00005</MenuItem>
-                                        <MenuItem value="CU_JS00006">CU_JS00006</MenuItem>
-                                    </Select>
+                                <td style={{ width: '10%' }} id='ScustomerDiv'>
                                 </td>
                                 <td style={{ width: '10%', textAlign: 'right' }}>终端代码:</td>
                                 <td style={{ width: '2%' }}></td>
