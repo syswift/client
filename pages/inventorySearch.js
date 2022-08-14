@@ -150,10 +150,16 @@ const inventorySearch = () => {
         const providerId = document.getElementById('SsupplierSelect').innerText;
         const boxType = document.getElementById('SinventoryTypeSelect').innerText;
 
+        const processObj = await supabase.from('profiles').select().eq('id',supabase.auth.user().id).single();
+
+        const project = processObj.body.currentProject;
+
         console.log(boxId,customerId,termId,providerId,boxType );
         
         try {
-            const {data, error} = await supabase.from('box_storage').select();
+            const {data, error} = await supabase.from('box_storage').select().match({
+                projectName: project
+            });
             if(error) throw error;
 
             console.log(data);

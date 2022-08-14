@@ -1,14 +1,31 @@
 import buildClient from '../api/build-client';
 import privateRoute from '../api/privateRoute';
-import React from 'react';
+import React, { Suspense } from 'react';
 import ReactECharts from 'echarts-for-react';
 import Paper from '@mui/material/Paper';
 import Router from 'next/router';
 import windowsData from '../globalData'
-
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
+import { Button } from '@mui/material';
+import { Stack } from '@mui/system';
+import { supabase } from '../api';
+let projects = [];
 
 const mainPage = () => {
     privateRoute();
+    
+    React.useEffect(async() => {
+      const processPer = supabase.auth.user().id;
+      const all = await supabase.from('project').select().eq('processPer', processPer);
+      console.log(all);
+
+      for(const project of all.data)
+      {
+        projects.push(project.projectName);
+      }
+    }, []);
+  
 
     const options1 = {
         title:{
@@ -97,6 +114,30 @@ const mainPage = () => {
           }
         ]
       };
+
+      //const createProject = async () =>{}
+
+      const test = [];
+
+      const submitProject = async () =>{
+        const projectSelected = document.getElementById('project').value;
+
+        console.log(projectSelected);
+
+        const id = supabase.auth.user().id;
+
+        try {
+          const{data, error} = await supabase.from('profiles').update({currentProject: projectSelected}).match({id: id});
+
+          if(error) throw error;
+          else{
+            alert('选择成功');
+          }
+          
+        } catch (error) {
+          console.log(error);
+        }
+      }
     
       return (
         <div style={{
@@ -108,16 +149,46 @@ const mainPage = () => {
             <br></br>
             <div>
                 <Paper style={{width:'23%',height:'300px',display:'inline-block',marginLeft:'1%',marginRight:'1%',backgroundColor:'rgb(209,233,252)'}}>
-                  
+                <h2 style={{marginLeft: '40%'}}>项目</h2>
+                <Autocomplete
+                  style={{marginTop:'10%',marginLeft:'5%',marginRight:'5%'}}
+                  disablePortal
+                  id="project"
+                  options={projects}
+                  renderInput={(params) => <TextField {...params} label="选择项目或输入项目名查找"  />}
+                />
+                <Button style={{marginTop:'20%',marginLeft:'40%',marginRight:'40%'}} id='selectProject' variant="contained" onClick={submitProject}>确定</Button>
                 </Paper>
                 <Paper style={{width:'23%',height:'300px',display:'inline-block',marginLeft:'1%',marginRight:'1%',backgroundColor:'rgb(208,242,255)'}}>
-                  
+                <h2 style={{marginLeft: '40%'}}>测试</h2>
+                <Autocomplete
+                  style={{marginTop:'10%',marginLeft:'5%',marginRight:'5%'}}
+                  disablePortal
+                  options={test}
+                  renderInput={(params) => <TextField {...params} label="" id = 'projectInput' />}
+                />
+                <Button style={{marginTop:'20%',marginLeft:'40%',marginRight:'40%'}}  variant="contained">测试</Button>
                 </Paper>
                 <Paper style={{width:'23%',height:'300px',display:'inline-block',marginLeft:'1%',marginRight:'1%',backgroundColor:'rgb(255,247,205)'}}>
-                  
+                <h2 style={{marginLeft: '40%'}}>测试</h2>
+                <Autocomplete
+                  style={{marginTop:'10%',marginLeft:'5%',marginRight:'5%'}}
+                  disablePortal
+                  options={test}
+                  renderInput={(params) => <TextField {...params} label="" id = 'projectInput' />}
+                />
+                <Button style={{marginTop:'20%',marginLeft:'40%',marginRight:'40%'}}  variant="contained">测试</Button>
                 </Paper>
-                <Paper style={{width:'23%',height:'300px',display:'inline-block',marginLeft:'1%',marginRight:'1%',backgroundColor:'rgb(255,231,217)'}}>
-                  
+                
+                <Paper style={{width:'23%',height:'300px',display:'inline-block',marginLeft:'1%',marginRight:'1%', marginTop:'1%', backgroundColor:'rgb(255,231,217)'}}>
+                <h2 style={{marginLeft: '40%'}}>测试</h2>
+                <Autocomplete
+                  style={{marginTop:'10%',marginLeft:'5%',marginRight:'5%'}}
+                  disablePortal
+                  options={test}
+                  renderInput={(params) => <TextField {...params} label="" id = 'projectInput' />}
+                />
+                <Button style={{marginTop:'20%',marginLeft:'40%',marginRight:'40%'}}  variant="contained">测试</Button>
                 </Paper>
             </div>
             <br></br>

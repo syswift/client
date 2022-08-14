@@ -8,7 +8,7 @@ import Router from 'next/router';
 //import { RouteGuard } from '../api/RouteGuard';
 import privateRoute from '../api/privateRoute';
 
-const global = ({Component, pageProps, auth_level}) =>{
+const global = ({Component, pageProps, auth_level, projectSelected}) =>{
     
     return (
     <div>     

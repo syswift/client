@@ -189,6 +189,7 @@ const gongdan = () => {
         else{
             try{
                 const processPer = processObj.body.name;
+                const project = processObj.body.currentProject;
 
                 //console.log(processPer);
 
@@ -200,7 +201,8 @@ const gongdan = () => {
                     type: gongdanTypeSelect,
                     beizhu: beizhu,
                     processPer: processPer,
-                    gongdanState: true
+                    gongdanState: true,
+                    projectName: project
                   }
                 ]);
 
@@ -291,7 +293,10 @@ const gongdan = () => {
 
         const transState = (transStateString === '新增' ? true : transStateString === '完成' ? false : null);
     
-        const all = await supabase.from('gongdan').select().eq('processPer', processPer.body.name);
+        const all = await supabase.from('gongdan').select().match({
+            processPer: processPer.body.name,
+            projectName: processPer.body.currentProject
+          });
         //console.log(all);
 
         //alert(customerId.length);

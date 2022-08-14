@@ -115,6 +115,7 @@ const customerInformation = () => {
         else{
             try{
                 const processPer = processObj.body.name;
+                const project = processObj.body.currentProject;
 
                 //console.log(processPer);
 
@@ -128,14 +129,15 @@ const customerInformation = () => {
                     zipCode: zipCode,
                     country: country,
                     email1: email1,
-                    processPer: processPer
+                    processPer: processPer,
+                    projectName: project
                   }
                 ]);
 
                 if(error) throw error;
       
-                //search();
                 setOpen(false);
+                search();
                 //success upload
             } 
             catch (error) {
@@ -215,7 +217,11 @@ const customerInformation = () => {
         
         const status = (statusString === '可用' ? true : statusString === '暂不可用' ? false : null);
 
-        const all = await supabase.from('customer').select().eq('processPer', processPer.body.name);
+        const all = await supabase.from('customer').select().match({
+            processPer: processPer.body.name,
+            projectName: processPer.body.currentProject
+          });
+
         console.log(customerId,customerName,status);
 
         for(const customer of all.data)

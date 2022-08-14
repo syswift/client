@@ -46,10 +46,27 @@ import { DEFAULT_COLOR_SCHEME_STORAGE_KEY } from '@mui/system/cssVars/getInitCol
 const trans = () => {
   privateRoute();
 
-  React.useEffect(() => {
+  React.useEffect(async() => {
     // checks if the user is authenticated
-    const user = supabase.auth.user();
-    if(!user) Router.push('/auth/loginPage');
+    const processPer = await supabase.from('profiles').select().eq('id',supabase.auth.user().id).single();
+
+    const all = await supabase.from('customer').select().match({
+      processPer: processPer.body.name,
+      projectName: processPer.body.currentProject
+    });
+
+    //console.log(all);
+
+    const element = document.getElementById('ScustomerDiv');
+       
+
+    ReactDOM.render(<div>
+      <Select labelId="customerLabel" id="ScustomerSelect" style={{ width: '100%' }}>
+        {all.data.map((customer)=>{ return (
+      <MenuItem value={customer.customerId}>{customer.customerId}</MenuItem>
+       ) })}
+    </Select>
+    </div>,element);
   }, []);
 
   const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -242,7 +259,10 @@ const ondelete = async (event) =>{
 
         const transState = (transStateString === '新增' ? true : transStateString === '完成' ? false : null);
     
-        const all = await supabase.from('trans').select().eq('processPer', processPer.body.name);
+        const all = await supabase.from('trans').select().match({
+          processPer: processPer.body.name,
+          projectName: processPer.body.currentProject
+        });
         console.log(all);
     
         const alltrans = [];
@@ -256,7 +276,7 @@ const ondelete = async (event) =>{
             (customerId.length < 2 || customerId === tran.customerId) &&
             (termId.length < 2 || termId === tran.termId) &&
             (transState === null || transState === tran.transState) &&
-            (transType.length < 2 || transType === tran.transType)
+            (transType.length < 2 || transType === tran.transType) 
             )
           {
             //alert(customerId +' '+ termId + ' '+transState);
@@ -334,6 +354,7 @@ const ondelete = async (event) =>{
                   for (let i = 0; i < value.boxNo; i++) {
                     const boxId = document.getElementById('turnoverCodeSelect'+i).innerText;
                     const amount = document.getElementById('boxNumSelect'+i).value;
+                    const project = processObj.body.currentProject;
             
                     console.log(boxId);
                     console.log(amount);
@@ -364,7 +385,8 @@ const ondelete = async (event) =>{
                                 customerId: customerId,
                                 termId: termId,
                                 boxId: boxId,
-                                amount: Number(amount)
+                                amount: Number(amount),
+                                projectName: project
                               });
                             if(error) throw error;
                             }
@@ -375,6 +397,7 @@ const ondelete = async (event) =>{
   
             try{
                 const processPer = processObj.body.name;
+                const project = processObj.body.currentProject;
                 const currentDate = getDate();
 
                 //console.log(processPer);
@@ -387,7 +410,8 @@ const ondelete = async (event) =>{
                     transState: true,
                     transType: turnoverTypeSelect,
                     processPer: processPer,
-                    createTime: currentDate
+                    createTime: currentDate,
+                    projectName: project
                   }
                 ]);
 
@@ -512,15 +536,8 @@ const ondelete = async (event) =>{
                 </td>
                 <td style={{ width: '10%', textAlign: 'right' }}>客户代码:</td>
                 <td style={{ width: '2%' }}></td>
-                <td style={{ width: '10%' }}>
-                  <Select labelId="customerLabel" id="ScustomerSelect" style={{ width: '100%' }}>
-                    <MenuItem value="CU_JS00001">CU_JS00001</MenuItem>
-                    <MenuItem value="CU_JS00002">CU_JS00002</MenuItem>
-                    <MenuItem value="CU_JS00003">CU_JS00003</MenuItem>
-                    <MenuItem value="CU_JS00004">CU_JS00004</MenuItem>
-                    <MenuItem value="CU_JS00005">CU_JS00005</MenuItem>
-                    <MenuItem value="CU_JS00006">CU_JS00006</MenuItem>
-                  </Select>
+                <td style={{ width: '10%' }}  id = 'ScustomerDiv'>
+                
                 </td>
                 <td style={{ width: '10%', textAlign: 'right' }}>终端代码:</td>
                 <td style={{ width: '2%' }}></td>
