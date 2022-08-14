@@ -259,8 +259,8 @@ const Navbar =({auth_level}) => {
                       }
                       {(auth_level === "管理" )
                       ?<TreeItem nodeId="21" label="系统管理" style={{minHeight:'56px',paddingLeft: '16px',alignItem:'center'}}>
-                        <TreeItem nodeId="22" label="系统功能1" button onClick={()=>{console.log(auth_level)}} icon={<DesktopWindowsIcon color="primary"/>} style={{height:'56px',paddingLeft: '16px',display:'flex',alignItem:'center'}}/>
-                        <TreeItem nodeId="23" label="系统功能2" button onClick={()=>{Router.push('/')}} icon={<DesktopWindowsIcon color="primary"/>} style={{height:'56px',paddingLeft: '16px',display:'flex',alignItem:'center'}}/>
+                        <TreeItem nodeId="22" label="文件上传" button onClick={()=>{Router.push('/dragdrop')}} icon={<DesktopWindowsIcon color="primary"/>} style={{height:'56px',paddingLeft: '16px',display:'flex',alignItem:'center'}}/>
+                        <TreeItem nodeId="23" label="文件下载" button onClick={()=>{Router.push('/filedownload')}} icon={<DesktopWindowsIcon color="primary"/>} style={{height:'56px',paddingLeft: '16px',display:'flex',alignItem:'center'}}/>
                       </TreeItem>
                       :null
                       }

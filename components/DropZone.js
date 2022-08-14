@@ -5,7 +5,7 @@ import styles from "../styles/DropZone.module.css";
 import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
 import { supabase } from "../api";
 
-const DropZone = ({ data, dispatch }) => {
+const DropZone = ({ data, dispatch, bucket }) => {
   // onDragEnter sets inDropZone to true
   const handleDragEnter = (e) => {
     e.preventDefault();
@@ -78,21 +78,22 @@ const DropZone = ({ data, dispatch }) => {
     let files = data.fileList;
     // initialize formData object
     const formData = new FormData();
+
+    const user = supabase.auth.user();
     // loop over files and add to formData
     files.forEach(async (file)  => {
       formData.append("/files.txt", file.data);
        //uploadfile
       try{
-
-        const user = supabase.auth.user();
+     
         const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `${user.id}/${fileName}`;
+        //const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${user.id}/${file.name}`;
 
-        console.log(filePath);
+        console.log(bucket);
 
         const { error } = await supabase.storage
-              .from('customercontracts')
+              .from(bucket)
               .upload(filePath,file)
 
         if(error) throw error;
