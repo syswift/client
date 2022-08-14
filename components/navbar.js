@@ -101,7 +101,7 @@ const useStyles = makeStyles((theme) => ({
     },
   }));
 
-const Navbar =({auth_level})=>{
+const Navbar =({auth_level}) => {
     const classes = useStyles();
     const theme = useTheme();
     const [open, setOpen] = React.useState(true);

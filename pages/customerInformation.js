@@ -466,11 +466,21 @@ const customerInformation = () => {
                             <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
                             {columns.map((column) => {
                                 const value = row[column.id];
-                                return (
+
+                                if(column.id !== 'customerCode')
+                                { return (
                                 <TableCell key={column.id} align={column.align}>
                                     {typeof value === 'boolean' ? dataStateSet(value) : value}
                                 </TableCell>
                                 );
+                                }
+                                else{
+                                    return (
+                                    <TableCell key={column.id} align={column.align}>
+                                        <Button id={column.id} variant="outlined">{typeof value === 'boolean' ? dataStateSet(value) : value}</Button>
+                                    </TableCell>
+                                    )
+                                }
                             })}
                             </TableRow>
                         );

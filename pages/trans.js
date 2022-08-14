@@ -144,8 +144,6 @@ const ondelete = async (event) =>{
     console.log(error);
   }
   
-
-  
 }
 
   // 周转类型的判断

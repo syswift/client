@@ -1,12 +1,12 @@
 import '../globalStyle.css';
 import '@material-ui/core';
-import Navbar from '../component/navbar';
+import Navbar from '../components/navbar';
 import buildClient from '../api/build-client';
 import Head from 'next/head';
 import { supabase } from '../api';
 import Router from 'next/router';
 //import { RouteGuard } from '../api/RouteGuard';
-//import privateRoute from '../api/privateRoute';
+import privateRoute from '../api/privateRoute';
 
 const global = ({Component, pageProps, auth_level}) =>{
     
@@ -16,8 +16,9 @@ const global = ({Component, pageProps, auth_level}) =>{
             <title>零非管理系统</title>
             <link rel="shortcut icon" href='/logo.png'/>
         </Head>
+        
         <Navbar auth_level={ auth_level}/>
-        <Component {...pageProps} />
+            <Component {...pageProps} />
     </div>
     );
 }
