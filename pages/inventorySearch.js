@@ -33,6 +33,7 @@ import TablePagination from '@material-ui/core/TablePagination';
 import privateRoute from '../api/privateRoute';
 import { supabase } from '../api';
 import * as ReactDOM from 'react-dom';
+import { checkAuth } from '../api/checkAuth';
 
 const inventorySearch = () => {
     privateRoute();
@@ -41,11 +42,20 @@ const inventorySearch = () => {
     React.useEffect(async() => {
         // checks if the user is authenticated
         const processPer = await supabase.from('profiles').select().eq('id',supabase.auth.user().id).single();
+        const auth = await checkAuth();
+        let all;
     
-        const all = await supabase.from('customer').select().match({
-          processPer: processPer.body.name,
-          projectName: processPer.body.currentProject
-        });
+        if(processPer.body.currentProject !== '')
+        {
+            all = await supabase.from('customer').select().match({
+            processPer: processPer.body.name,
+            projectName: processPer.body.currentProject
+            });
+        }
+        else if(auth === '管理' || auth === '销售')
+        {
+            all = await supabase.from('customer').select();
+        }
     
         //console.log(all);
     
@@ -167,7 +177,6 @@ const inventorySearch = () => {
         //console.log('i am here');
 
         rows= [];
-
   
         const boxId = document.getElementById('SboxId').value;
         const customerId = document.getElementById('ScustomerSelect').innerText;
@@ -181,15 +190,28 @@ const inventorySearch = () => {
 
         console.log(boxId,customerId,termId,providerId,boxType );
         
-        try {
-            const {data, error} = await supabase.from('box_storage').select().match({
-                projectName: project
-            });
-            if(error) throw error;
+            let data;
+
+            const Auth = await checkAuth();
+
+            if(project !== '')
+            {
+                const data1 = await supabase.from('box_storage').select().match({
+                    projectName: project
+                });
+                data = data1;
+            }    
+            else if(Auth === '管理' || Auth === '销售')
+            {
+                const data1 = await supabase.from('box_storage').select();
+                console.log(data1);
+
+                data = data1;
+            }
 
             console.log(data);
 
-            for(const box of data)
+            for(const box of data.data)
             {
                 //rows.push(createData(box.customerId,box.termId,box.providerId,box.boxId,box.boxType,box.amount,box.boxName,box.create_at,true));
                 if(
@@ -228,9 +250,6 @@ const inventorySearch = () => {
                 }),element);
 
            
-        } catch (error) {
-            console.log(error);
-        }  
     }
 
     const resetSearch = () =>{

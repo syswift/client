@@ -41,6 +41,13 @@ import { supabase } from '../api';
 import Router from 'next/router';
 import privateRoute from '../api/privateRoute';
 import { checkAuth } from '../api/checkAuth';
+import Autocomplete from '@mui/material/Autocomplete';
+
+const terminals = ['EU_HB_00001','EU_AH_00004','EU_AH_00002'];
+
+const turnoverStates = ['完成','新增'];
+
+const types = ['正向周转','逆向周转'];
 
 // 弹窗
 const trans = () => {
@@ -60,7 +67,7 @@ const trans = () => {
         projectName: processPer.body.currentProject
       });
     }
-    else if(checkAuth() === '管理')
+    else if(await checkAuth() === '管理')
     {
       all = await supabase.from('customer').select();
     }
@@ -70,17 +77,26 @@ const trans = () => {
       });
     }
 
-    //console.log(all);
+    console.log(all);
 
     const element = document.getElementById('ScustomerDiv');
 
-    ReactDOM.render(<div>
-      <Select labelId="customerLabel" id="ScustomerSelect" style={{ width: '100%' }}>
-        {all.data.map((customer)=>{ return (
-      <MenuItem value={customer.customerId}>{customer.customerId}</MenuItem>
-       ) })}
-    </Select>
-    </div>,element);
+    let customers = [];
+
+    for(const customer of all.data)
+    {
+      customers.push(customer.customerId);
+    }
+    console.log(customers);
+
+    ReactDOM.render(<>
+      <Autocomplete
+                  disablePortal
+                  id="ScustomerSelect"
+                  options={customers}
+                  renderInput={(params) => <TextField {...params} label="选择客户代码"  />}
+                />
+    </>,element);
 
     //await new Promise(resolve => setTimeout(resolve, 3000));
     Router.push(window.location.pathname);
@@ -238,10 +254,24 @@ const ondelete = async (event) =>{
 
     const processPer = await supabase.from('profiles').select().eq('id',supabase.auth.user().id).single();
 
-    const all = await supabase.from('customer').select().match({
-      processPer: processPer.body.name,
-      projectName: processPer.body.currentProject
-    });
+    let all;
+    
+    if(processPer.body.currentProject !== '')
+    {
+      all = await supabase.from('customer').select().match({
+        processPer: processPer.body.name,
+        projectName: processPer.body.currentProject
+      });
+    }
+    else if(await checkAuth() === '管理')
+    {
+      all = await supabase.from('customer').select();
+    }
+    else{
+      all = await supabase.from('customer').select().match({
+        processPer: processPer.body.name
+      });
+    }
 
     const element = document.getElementById('customerDiv');
 
@@ -291,7 +321,6 @@ const ondelete = async (event) =>{
         const termId = document.getElementById('SterminalSelect').innerText;
         const transStateString = document.getElementById('SturnoverStateSelect').innerText;
         const transType = document.getElementById('SturnoverTypeSelect').innerText;
-        
 
         //console.log(transStateString);
 
@@ -547,18 +576,18 @@ const ondelete = async (event) =>{
 
   const resetSearch = () =>{
     const transId = document.getElementById('StransId').value;
-    const customerSelect = document.getElementById('ScustomerSelect').innerText;
-    const terminalSelect = document.getElementById('SterminalSelect').innerText;
-    const transStateString = document.getElementById('SturnoverStateSelect').innerText;
-    const turnoverTypeSelect = document.getElementById('SturnoverTypeSelect').innerText;
+    const customerSelect = document.getElementById('ScustomerSelect').value;
+    const terminalSelect = document.getElementById('SterminalSelect').value;
+    const transStateString = document.getElementById('SturnoverStateSelect').value;
+    const turnoverTypeSelect = document.getElementById('SturnoverTypeSelect').value;
 
     const transState = (transStateString === '新增' ? true : transStateString === '完成' ? false : null);
 
     if(transId !== '') document.getElementById('StransId').value = '';
-    if(customerSelect.length > 2) document.getElementById('ScustomerSelect').innerText = '';
-    if(terminalSelect.length > 2) document.getElementById('SterminalSelect').innerText = '';
-    if(transState !== null) document.getElementById('SturnoverStateSelect').innerText = '';
-    if(turnoverTypeSelect.length > 2) document.getElementById('SturnoverTypeSelect').innerText = '';
+    if(customerSelect !== '') document.getElementById('ScustomerSelect').value = '';
+    if(terminalSelect !== '') document.getElementById('SterminalSelect').value = '';
+    if(transState !== null) document.getElementById('SturnoverStateSelect').value = '';
+    if(turnoverTypeSelect !== '') document.getElementById('SturnoverTypeSelect').value = '';
   }
 
   return (
@@ -596,41 +625,41 @@ const ondelete = async (event) =>{
                 <td style={{ width: '10%', textAlign: 'right' }}>终端代码:</td>
                 <td style={{ width: '2%' }}></td>
                 <td style={{ width: '10%' }}>
-                  <Select labelId="terminalLabel" id="SterminalSelect" style={{ width: '100%' }} >
-                    <MenuItem value="EU_HB_00001">EU_HB_00001</MenuItem>
-                    <MenuItem value="EU_AH_00001">EU_AH_00001</MenuItem>
-                    <MenuItem value="EU_AH_00002">EU_AH_00002</MenuItem>
-                    <MenuItem value="EU_NMG_00001">EU_NMG_00001</MenuItem>
-                    <MenuItem value="EU_BJ_00001">EU_BJ_00001</MenuItem>
-                    <MenuItem value="EU_SC_00001">EU_SC_00001</MenuItem>
-                    <MenuItem value="EU_SH_00001">EU_SH_00001</MenuItem>
-                    <MenuItem value="EU_HN_00001">EU_HN_00001</MenuItem>
-                    <MenuItem value="EU_AH_00003">EU_AH_00003</MenuItem>
-                    <MenuItem value="EU_AH_00004">EU_AH_00004</MenuItem>
-                  </Select>
+                <Autocomplete
+                  disablePortal
+                  id="SterminalSelect"
+                  options={terminals}
+                  renderInput={(params) => <TextField {...params} label="选择终端代码"  />}
+                />
                 </td>
-                <td style={{ width: '10%', textAlign: 'right' }}>周转单状态:</td>
-                <td style={{ width: '2%' }}></td>
-                <td style={{ width: '10%' }}>
-                  <Select labelId="turnoverStateLabel" id="SturnoverStateSelect" style={{ width: '100%' }}>
-                    <MenuItem value="完成">完成</MenuItem>
-                    <MenuItem value="新增">新增</MenuItem>
-                  </Select>
-                </td>
-                <td>
+                <td style={{ width: '10%', textAlign: 'right' }}>
 
                 </td>
               </tr>
               <br>
               </br>
+              
               <tr>
+              <td style={{ width: '10%', textAlign: 'right' }}>周转单状态:</td>
+                <td style={{ width: '2%' }}></td>
+                <td style={{ width: '10%' }}>
+                <Autocomplete
+                  disablePortal
+                  id="SturnoverStateSelect"
+                  options={turnoverStates}
+                  renderInput={(params) => <TextField {...params} label="选择状态"  />}
+                />
+                </td>
+                
                 <td style={{ width: '10%', textAlign: 'right' }}>周转单类型:</td>
                 <td style={{ width: '2%' }}></td>
                 <td style={{ width: '10%' }}>
-                  <Select labelId="turnoverTypeLabel" id="SturnoverTypeSelect" style={{ width: '100%' }}>
-                    <MenuItem value="正向周转">正向周转</MenuItem>
-                    <MenuItem value="逆向周转">逆向周转</MenuItem>
-                  </Select>
+                <Autocomplete
+                  disablePortal
+                  id="SturnoverTypeSelect"
+                  options={types}
+                  renderInput={(params) => <TextField {...params} label="选择状态"  />}
+                />
                 </td>
               </tr>
             </table>
@@ -667,6 +696,7 @@ const ondelete = async (event) =>{
                         </span>
                         &emsp;
                         <span>
+                          
                           <Select labelId="terminalLabel" id="terminalSelect"  style={{ width: '30%' }} >
                             <MenuItem value="EU_HB_00001">EU_HB_00001</MenuItem>
                             <MenuItem value="EU_AH_00001">EU_AH_00001</MenuItem>

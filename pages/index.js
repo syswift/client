@@ -12,6 +12,7 @@ import { Stack } from '@mui/system';
 import { supabase } from '../api';
 import cloneDeep from 'lodash.clonedeep';
 import * as ReactDOM from 'react-dom';
+import { checkAuth } from '../api/checkAuth';
 
 let projects = [];
 let customerList = [];
@@ -106,8 +107,6 @@ let options2 = {
 const mainPage = () => {
     privateRoute();
 
-    const auth_level = '管理';
-
     React.useEffect(async() => {
 
       projects = [];
@@ -134,7 +133,7 @@ const mainPage = () => {
             projectName: processObj.body.currentProject
           });
       }
-      else if(auth_level === '管理')
+      else if(await checkAuth() === '管理')
         {
           all3 = await supabase.from('trans').select();
         }
