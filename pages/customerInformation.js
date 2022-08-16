@@ -370,47 +370,6 @@ const customerInformation = () => {
                             return (
                                 <TableCell key={column.id} align={column.align}>
                                 <Button id={column.id} variant="outlined" onClick={handleClickOpen2}>{value}</Button>
-                                <BootstrapDialog
-                                        onClose={handleClose2}
-                                        aria-labelledby="customized-dialog-title1"
-                                        open={open2}>
-                                        <BootstrapDialogTitle id="customized-dialog-title1" onClose={handleClose2}>
-                                            绑定终端
-                                        </BootstrapDialogTitle>
-                                        <DialogContent dividers>
-                                            <table style={{ minWidth: '565px'}}>
-                                                <tr>
-                                                    <td style={{ width: '15%', textAlign: 'left' }}>
-                                                        客户代码:
-                                                    </td>
-                                                    <td style={{ width: '20%', textAlign: 'center' ,fontWeight:'bold' }}>
-                                                        {windowsData.customerCode}
-                                                    </td>
-                                                    <td style={{ width: '15%', textAlign: 'left' }}>
-                                                        客户名称:
-                                                    </td>
-                                                    <td style={{ width: '13%', textAlign: 'center' ,fontWeight:'bold' }}>
-                                                        {windowsData.customerName}
-                                                    </td>
-                                                    <td style={{ width: '15%', textAlign: 'left' }}>
-                                                        公司编码:
-                                                    </td>
-                                                    <td style={{ width: '15%', textAlign: 'center' ,fontWeight:'bold'}}>
-                                                        {windowsData.companyCode}  
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                            <br /><br />
-                                            <div>终端列表</div>
-                                            <hr />
-                                            <CheckAll></CheckAll>
-                                        </DialogContent>
-                                        <DialogActions>
-                                            <Button autoFocus variant="contained" onClick={handleClickOpen2} size="medium" color="primary" className={classes.margin} style={{ margin: 'auto' }}>
-                                                提交
-                                            </Button>
-                                        </DialogActions>
-                                    </BootstrapDialog>
                             </TableCell>
                             )
                         }
@@ -702,6 +661,48 @@ const customerInformation = () => {
                     </div>
                 </Paper>
             </div>
+
+            <BootstrapDialog
+                                        onClose={handleClose2}
+                                        aria-labelledby="customized-dialog-title1"
+                                        open={open2}>
+                                        <BootstrapDialogTitle id="customized-dialog-title1" onClose={handleClose2}>
+                                            绑定终端
+                                        </BootstrapDialogTitle>
+                                        <DialogContent dividers>
+                                            <table style={{ minWidth: '565px'}}>
+                                                <tr>
+                                                    <td style={{ width: '15%', textAlign: 'left' }}>
+                                                        客户代码:
+                                                    </td>
+                                                    <td style={{ width: '20%', textAlign: 'center' ,fontWeight:'bold' }}>
+                                                        {windowsData.customerCode}
+                                                    </td>
+                                                    <td style={{ width: '15%', textAlign: 'left' }}>
+                                                        客户名称:
+                                                    </td>
+                                                    <td style={{ width: '13%', textAlign: 'center' ,fontWeight:'bold' }}>
+                                                        {windowsData.customerName}
+                                                    </td>
+                                                    <td style={{ width: '15%', textAlign: 'left' }}>
+                                                        公司编码:
+                                                    </td>
+                                                    <td style={{ width: '15%', textAlign: 'center' ,fontWeight:'bold'}}>
+                                                        {windowsData.companyCode}  
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <br /><br />
+                                            <div>终端列表</div>
+                                            <hr />
+                                            <CheckAll></CheckAll>
+                                        </DialogContent>
+                                        <DialogActions>
+                                            <Button autoFocus variant="contained" onClick={handleClickOpen2} size="medium" color="primary" className={classes.margin} style={{ margin: 'auto' }}>
+                                                提交
+                                            </Button>
+                                        </DialogActions>
+            </BootstrapDialog>
             <br></br>
             {/* 一张表 */}
             <TableContainer component={Paper} sx={{maxHeight: '500px'}}>
