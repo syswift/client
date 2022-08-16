@@ -237,7 +237,7 @@ const Navbar = () => {
                       ?<TreeItem nodeId="2" label="基础配置" style={{minHeight:'56px',paddingLeft: '16px',alignItem:'center'}}>
                         <TreeItem nodeId="3" label="客户信息" button onClick={()=>{Router.push('/customerInformation')}} icon={<SettingsIcon color="primary"/>} style={{height:'56px',paddingLeft: '16px',display:'flex',alignItem:'center'}}/>
                         <TreeItem nodeId="4" label="供应商信息" button onClick={()=>{Router.push('/supplierInformation')}} icon={<SettingsIcon color="primary"/>} style={{height:'56px',paddingLeft: '16px',display:'flex',alignItem:'center'}}/>
-                        <TreeItem nodeId="5" label="终端客户信息" button onClick={()=>{Router.push('/')}} icon={<SettingsIcon color="primary"/>} style={{height:'56px',paddingLeft: '16px',display:'flex',alignItem:'center'}}/>
+                        <TreeItem nodeId="5" label="终端信息" button onClick={()=>{Router.push('/terminalInfo')}} icon={<SettingsIcon color="primary"/>} style={{height:'56px',paddingLeft: '16px',display:'flex',alignItem:'center'}}/>
                         <TreeItem nodeId="6" label="周转箱信息" button onClick={()=>{Router.push('/')}} icon={<SettingsIcon color="primary"/>} style={{height:'56px',paddingLeft: '16px',display:'flex',alignItem:'center'}}/>
                         <TreeItem nodeId="7" label="价格信息" button onClick={()=>{Router.push('/')}} icon={<SettingsIcon color="primary"/>} style={{height:'56px',paddingLeft: '16px',display:'flex',alignItem:'center'}}/>
                       </TreeItem>

@@ -35,7 +35,7 @@ import { supabase } from '../api';
 import * as ReactDOM from 'react-dom';
 import {checkAuth} from '../api/checkAuth';
 
-const customerInformation = () => {
+const terminalInfo = () => {
     privateRoute();
     // 终端绑定的复选框
     const { useState, useEffect } = React;
@@ -183,15 +183,15 @@ const customerInformation = () => {
             return <Button variant="outlined">暂不可用</Button>
         }
     }
-    function createData(customerCode, customerName, companyCode, dataState, province, city, district, address, country, countryCode, contact1, position1, phone1, email1, contact2, position2, phone2, email2) {
-        return { customerCode, customerName, companyCode, dataState, province, city, district, address, country, countryCode, contact1, position1, phone1, email1, contact2, position2, phone2, email2 };
+    function createData(termCode, termName, companyCode, dataState, province, city, district, address, country, countryCode, contact1, position1, phone1, email1, contact2, position2, phone2, email2) {
+        return { termCode, termName, companyCode, dataState, province, city, district, address, country, countryCode, contact1, position1, phone1, email1, contact2, position2, phone2, email2 };
     }
     
 
     const onSubmit = async () => {
-        const customerId = document.getElementById('customerId').value;
+        const termId = document.getElementById('termId').value;
         const statusString = document.getElementById('status').innerText;
-        const customerName = document.getElementById('customerName').value;
+        const termName = document.getElementById('termName').value;
         const companyCode = document.getElementById('companyCode').value;
         const address = document.getElementById('address').value;
         const zipCode = document.getElementById('zipCode').value;
@@ -204,11 +204,11 @@ const customerInformation = () => {
 
         const status = (statusString === '可用' ? true : statusString === '暂不可用' ? false : null);
 
-        console.log(customerId,status,customerName,companyCode);
+        console.log(termId,status,termName,companyCode);
 
-        if(customerId === '' ||
+        if(termId === '' ||
             status === '' ||
-            customerName === '' ||
+            termName === '' ||
             companyCode === ''
             )
         {
@@ -221,11 +221,11 @@ const customerInformation = () => {
 
                 //console.log(processPer);
 
-                const { upload, error } = await supabase.from('customer').insert([
+                const { upload, error } = await supabase.from('terminal').insert([
                   {
-                    customerId: customerId,
+                    termId: termId,
                     status: status,
-                    customerName: customerName,
+                    termName: termName,
                     companyCode: companyCode,
                     address: address,
                     zipCode: zipCode,
@@ -266,7 +266,7 @@ const customerInformation = () => {
     };
     // 按钮组件
     const classes = useStyles();
-    // 增加客户信息弹窗
+    // 增加终端信息弹窗
     const [open1, setOpen1] = React.useState(false);
     const handleClickOpen1 = () => {
         setOpen1(true);
@@ -285,8 +285,8 @@ const customerInformation = () => {
     };
     // 表格
     const columns = [
-        { id: 'customerCode', label: '客户代码', minWidth: 100 },
-        { id: 'customerName', label: '客户名称', minWidth: 100 },
+        { id: 'termCode', label: '终端代码', minWidth: 100 },
+        { id: 'termName', label: '终端名称', minWidth: 100 },
         { id: 'companyCode', label: '公司编码', minWidth: 100 },
         { id: 'dataState', label: '状态', minWidth: 100 },
         { id: 'province', label: '省', minWidth: 50 },
@@ -322,8 +322,8 @@ const customerInformation = () => {
 
         const processPer = await supabase.from('profiles').select().eq('id',supabase.auth.user().id).single();
 
-        const customerId = document.getElementById('ScustomerId').value;
-        const customerName = document.getElementById('ScustomerName').value;
+        const termId = document.getElementById('StermId').value;
+        const termName = document.getElementById('StermName').value;
         const statusString = document.getElementById('Stype').innerHTML;
         
         const status = (statusString === '可用' ? true : statusString === '暂不可用' ? false : null);
@@ -332,32 +332,33 @@ const customerInformation = () => {
 
         if(await checkAuth() !== '管理')
         {
-            all = await supabase.from('customer').select().match({
+            all = await supabase.from('terminal').select().match({
                 processPer: processPer.body.name
             });
         }
         else{
-            all = await supabase.from('customer').select()
+            all = await supabase.from('terminal').select()
         }
-        console.log(customerId,customerName,status);
 
-        for(const customer of all.data)
+        console.log(termId,termName,status);
+
+        for(const term of all.data)
         {
             if(
-                (customerId === '' || customerId === customer.customerId) &&
-                (customerName === '' || customerName === customer.customerName) &&
-                (status === null || status === customer.status)
+                (termId === '' || termId === term.termId) &&
+                (termName === '' || termName === term.termName) &&
+                (status === null || status === term.status)
             )
             {
-                //(customerCode, customerName, companyCode, dataState, province, city, district, address, country, countryCode, contact1, position1, phone1, email1, contact2, position2, phone2, email2)
-                rows.push(createData(customer.customerId, customer.customerName, customer.companyCode, customer.status, '','','',customer.address,customer.country, customer.countryCode,
-                             customer.contactP1,customer.position1,customer.contactD1,customer.email1,
+                //(termCode, termName, companyCode, dataState, province, city, district, address, country, countryCode, contact1, position1, phone1, email1, contact2, position2, phone2, email2)
+                rows.push(createData(term.termId, term.termName, term.companyCode, term.status, '','','',term.address,term.country, term.countryCode,
+                             term.contactP1,term.position1,term.contactD1,term.email1,
                              '','','',''))
             }
         }
         console.log(rows);
 
-        const element = document.getElementById('customerDetail');
+        const element = document.getElementById('termDetail');
         
         ReactDOM.render(
             rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
@@ -366,7 +367,7 @@ const customerInformation = () => {
                     {columns.map((column) => {
                         const value = row[column.id];
 
-                        if(column.id !== 'customerCode')
+                        if(column.id !== 'termCode')
                         { return (
                         <TableCell key={column.id} align={column.align}>
                             {typeof value === 'boolean' ? dataStateSet(value) : value}
@@ -389,14 +390,14 @@ const customerInformation = () => {
     }
 
     const resetSearch = () =>{
-        const customerId = document.getElementById('ScustomerId').value;
-        const customerName = document.getElementById('ScustomerName').value;
+        const termId = document.getElementById('StermId').value;
+        const termName = document.getElementById('StermName').value;
         const statusString = document.getElementById('Stype').innerHTML;
     
         const status = (statusString === '可用' ? true : statusString === '暂不可用' ? false : null);
     
-        if(customerId !== '') document.getElementById('ScustomerId').value = '';
-        if(customerName !== '') document.getElementById('ScustomerName').value = '';
+        if(termId !== '') document.getElementById('StermId').value = '';
+        if(termName !== '') document.getElementById('StermName').value = '';
         if(status !== null) document.getElementById('Stype').innerText = '';
       }
 
@@ -416,21 +417,21 @@ const customerInformation = () => {
                         textColor="primary"
                         onChange={handleChange}
                         aria-label="disabled tabs example">
-                        <Tab label="客户信息" />
+                        <Tab label="终端信息" />
                     </Tabs>
                     <div>
                         <table>
                             <br></br>
                             <tr>
-                                <td style={{ width: '10%', textAlign: 'right' }}>客户代码:</td>
+                                <td style={{ width: '10%', textAlign: 'right' }}>终端代码:</td>
                                 <td style={{ width: '2%' }}></td>
                                 <td style={{ width: '10%' }}>
-                                    <Input placeholder="请输入客户代码" id='ScustomerId' inputProps={{ 'aria-label': 'description' }} />
+                                    <Input placeholder="请输入终端代码" id='StermId' inputProps={{ 'aria-label': 'description' }} />
                                 </td>
-                                <td style={{ width: '10%', textAlign: 'right' }}>客户名称:</td>
+                                <td style={{ width: '10%', textAlign: 'right' }}>终端名称:</td>
                                 <td style={{ width: '2%' }}></td>
                                 <td style={{ width: '10%' }}>
-                                    <Input placeholder="请输入客户名称" id='ScustomerName' inputProps={{ 'aria-label': 'description' }} />
+                                    <Input placeholder="请输入终端名称" id='StermName' inputProps={{ 'aria-label': 'description' }} />
                                 </td>
                                 <td>
                                 </td>
@@ -455,20 +456,20 @@ const customerInformation = () => {
                             <form id="sinsertForm" autoComplete="on" onSubmit={onSubmit}>
                                 <span>
                                     <Button variant="contained" onClick={handleClickOpen1} size="medium" color="primary" className={classes.margin}>
-                                        + 新增客户
+                                        + 新增终端
                                     </Button>
                                     <BootstrapDialog
                                         onClose={handleClose1}
                                         aria-labelledby="customized-dialog-title1"
                                         open={open1}>
                                         <BootstrapDialogTitle id="customized-dialog-title1" onClose={handleClose1}>
-                                            新增客户
+                                            新增终端
                                         </BootstrapDialogTitle>
                                         <DialogContent dividers>
                                             <table>
                                                 <tr>
                                                     <td style={{ width: '30%', textAlign: 'left' }}>
-                                                        *客户代码:
+                                                        *终端代码:
                                                     </td>
                                                     <td style={{ width: '3%' }}></td>
                                                     <td style={{ width: '30%', textAlign: 'left' }}>
@@ -476,12 +477,12 @@ const customerInformation = () => {
                                                     </td>
                                                     <td style={{ width: '3%' }}></td>
                                                     <td style={{ width: '30%', textAlign: 'left' }}>
-                                                        *客户名称:
+                                                        *终端名称:
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td style={{ width: '30%' }}>
-                                                        <Input placeholder="请输入客户代码" id="customerId" inputProps={{ 'aria-label': 'description' }} />
+                                                        <Input placeholder="请输入终端代码" id="termId" inputProps={{ 'aria-label': 'description' }} />
                                                     </td>
                                                     <td style={{ width: '3%' }}></td>
                                                     <td style={{ width: '30%' }}>
@@ -492,7 +493,7 @@ const customerInformation = () => {
                                                     </td>
                                                     <td style={{ width: '3%' }}></td>
                                                     <td style={{ width: '30%' }}>
-                                                        <Input placeholder="请输入客户名称" id='customerName' inputProps={{ 'aria-label': 'description' }} />
+                                                        <Input placeholder="请输入终端名称" id='termName' inputProps={{ 'aria-label': 'description' }} />
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -679,16 +680,16 @@ const customerInformation = () => {
                                             <table style={{ minWidth: '565px'}}>
                                                 <tr>
                                                     <td style={{ width: '15%', textAlign: 'left' }}>
-                                                        客户代码:
+                                                        终端代码:
                                                     </td>
                                                     <td style={{ width: '20%', textAlign: 'center' ,fontWeight:'bold' }}>
-                                                        {windowsData.customerCode}
+                                                        {windowsData.termCode}
                                                     </td>
                                                     <td style={{ width: '15%', textAlign: 'left' }}>
-                                                        客户名称:
+                                                        终端名称:
                                                     </td>
                                                     <td style={{ width: '13%', textAlign: 'center' ,fontWeight:'bold' }}>
-                                                        {windowsData.customerName}
+                                                        {windowsData.termName}
                                                     </td>
                                                     <td style={{ width: '15%', textAlign: 'left' }}>
                                                         公司编码:
@@ -725,7 +726,7 @@ const customerInformation = () => {
                             ))}
                         </TableRow>
                     </TableHead>
-                    <TableBody id='customerDetail'>
+                    <TableBody id='termDetail'>
                     </TableBody>
                 </Table>
             </TableContainer>
@@ -742,4 +743,4 @@ const customerInformation = () => {
     );
 }
 
-export default customerInformation;
+export default terminalInfo;
