@@ -40,20 +40,35 @@ import { TextField } from '@mui/material';
 import { supabase } from '../api';
 import Router from 'next/router';
 import privateRoute from '../api/privateRoute';
-import { DEFAULT_COLOR_SCHEME_STORAGE_KEY } from '@mui/system/cssVars/getInitColorSchemeScript';
+import { checkAuth } from '../api/checkAuth';
 
 // 弹窗
 const trans = () => {
   privateRoute();
 
+  //const auth_level = '管理';
+
   React.useEffect(async() => {
     // checks if the user is authenticated
     const processPer = await supabase.from('profiles').select().eq('id',supabase.auth.user().id).single();
-
-    const all = await supabase.from('customer').select().match({
-      processPer: processPer.body.name,
-      projectName: processPer.body.currentProject
-    });
+    let all;
+    
+    if(processPer.body.currentProject !== '')
+    {
+      all = await supabase.from('customer').select().match({
+        processPer: processPer.body.name,
+        projectName: processPer.body.currentProject
+      });
+    }
+    else if(checkAuth() === '管理')
+    {
+      all = await supabase.from('customer').select();
+    }
+    else{
+      all = await supabase.from('customer').select().match({
+        processPer: processPer.body.name
+      });
+    }
 
     //console.log(all);
 
@@ -66,6 +81,10 @@ const trans = () => {
        ) })}
     </Select>
     </div>,element);
+
+    //await new Promise(resolve => setTimeout(resolve, 3000));
+    Router.push(window.location.pathname);
+    search();
 
   }, []);
 
@@ -277,11 +296,27 @@ const ondelete = async (event) =>{
         //console.log(transStateString);
 
         const transState = (transStateString === '新增' ? true : transStateString === '完成' ? false : null);
+        let all;
+
+        Router.push(window.location.pathname);
+        //console.log(await checkAuth());
     
-        const all = await supabase.from('trans').select().match({
-          processPer: processPer.body.name,
-          projectName: processPer.body.currentProject
-        });
+        if(processPer.body.currentProject !== '')
+        {
+          all = await supabase.from('trans').select().match({
+            processPer: processPer.body.name,
+            projectName: processPer.body.currentProject
+          });
+        }
+        else if(await checkAuth() === '管理')
+        {
+          all = await supabase.from('trans').select();
+        }
+        else{
+          all = await supabase.from('trans').select().match({
+            processPer: processPer.body.name
+          });
+        }
         console.log(all);
     
         const alltrans = [];

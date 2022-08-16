@@ -25,6 +25,7 @@
     "easymde": "latest",
     "echarts": "latest",
     "echarts-for-react": "latest",
+    "lodash.clonedeep": "^4.5.0",
     "material-ui-popup-state": "latest",
     "next": "latest",
     "node-fetch": "^3.2.10",

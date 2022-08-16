@@ -28,7 +28,7 @@ import WorkIcon from '@material-ui/icons/Work';
 import ListIcon from '@material-ui/icons/List';
 import DesktopWindowsIcon from '@material-ui/icons/DesktopWindows';
 
-import windowsData from '../globalData'
+import windowsData from '../globalData';
 import { render } from 'react-dom';
 
 import TreeItem from '@material-ui/lab/TreeItem';
@@ -36,6 +36,7 @@ import TreeView from '@material-ui/lab/TreeView';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { display } from '@mui/system';
 import { supabase } from '../api';
+import { checkAuth } from '../api/checkAuth';
 
 // const drawerWidth = 240;
 
@@ -101,24 +102,42 @@ const useStyles = makeStyles((theme) => ({
     },
   }));
 
-const Navbar =({auth_level}) => {
+let auth_level = '';
+const Navbar = () => {
+    
     const classes = useStyles();
     const theme = useTheme();
     const [open, setOpen] = React.useState(true);
     const currentUser = supabase.auth.user();
+    let currentProject = '';
+
+    React.useEffect(async() => {
+      setOpen(false);
+      windowsData.drawerWidth = 0;
+
+      if(supabase.auth.user())
+      {
+        auth_level = await checkAuth();
+        const processObj = await supabase.from('profiles').select().eq('id',supabase.auth.user().id).single();
+        currentProject = processObj.data.currentProject;
+        const element = document.getElementById('pathname');
+
+        element.innerText = currentProject;
+      }
+    },[])
 
     //最高优先运行
 
     const handleDrawerOpen = () => {
         windowsData.drawerWidth=240;
         setOpen(true);
-        Router.push(windowsData.pathDataShow);
+        Router.push(window.location.pathname);
     };
 
     const handleDrawerClose = () => {
         windowsData.drawerWidth=0;
         setOpen(false);
-        Router.push(windowsData.pathDataShow);
+        Router.push(window.location.pathname);
     };
     const openManagement = () =>{
         Router.push('./trans');
@@ -128,7 +147,7 @@ const Navbar =({auth_level}) => {
         const { error } = await supabase.auth.signOut()
         if(!error) {
           alert('注销成功');
-          Router.push('/');
+          Router.push('/auth/loginPage');
         }
     }
 
@@ -165,7 +184,7 @@ const Navbar =({auth_level}) => {
                             width={40} 
                             height={40}
                             onClick={()=>{Router.push('/')}}/>
-                        <div id="pathname" style={{marginLeft:20,flexGrow:1}}>{showpath()}</div>
+                        <div id="pathname" style={{marginLeft:20,flexGrow:1}}>{currentProject}</div>
                         {!currentUser
                         ? <Button color="inherit" onClick={()=>{Router.push('/auth/loginPage')}}>登录</Button>
                         : <div/>
@@ -261,6 +280,7 @@ const Navbar =({auth_level}) => {
                       ?<TreeItem nodeId="21" label="系统管理" style={{minHeight:'56px',paddingLeft: '16px',alignItem:'center'}}>
                         <TreeItem nodeId="22" label="文件上传" button onClick={()=>{Router.push('/dragdrop')}} icon={<DesktopWindowsIcon color="primary"/>} style={{height:'56px',paddingLeft: '16px',display:'flex',alignItem:'center'}}/>
                         <TreeItem nodeId="23" label="文件下载" button onClick={()=>{Router.push('/filedownload')}} icon={<DesktopWindowsIcon color="primary"/>} style={{height:'56px',paddingLeft: '16px',display:'flex',alignItem:'center'}}/>
+                        <TreeItem nodeId="23" label="账号管理" button onClick={()=>{Router.push('/userManage')}} icon={<DesktopWindowsIcon color="primary"/>} style={{height:'56px',paddingLeft: '16px',display:'flex',alignItem:'center'}}/>
                       </TreeItem>
                       :null
                       }

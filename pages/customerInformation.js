@@ -36,6 +36,107 @@ import * as ReactDOM from 'react-dom';
 
 const customerInformation = () => {
     privateRoute();
+    // 终端绑定的复选框
+    const { useState, useEffect } = React;
+    function CheckAll() {
+        const [checkAll, setCheckAll] = useState(false);
+        // 因为点击单按钮和全选按钮，都会改变checkALll从而触发useEffect，导致点击单按钮还会影响其他按钮的选中效果，所以设置这个数据，为了确保仅在点击全选的按钮状态下改变对应的数据
+        const [isCheckAllClicked, setCheckAllClick] = useState(false); 
+        const [list, setList] = useState([
+          {
+            id: 1,
+            name: "EU_HB_00001",
+            checked: true,
+          },
+          {
+            id: 2,
+            name: "EU_HB_00002",
+            checked: false,
+          },
+          {
+            id: 3,
+            name: "EU_HB_00003",
+            checked: false,
+          },
+          {
+            id: 4,
+            name: "EU_HB_00004",
+            checked: false,
+          },
+          {
+            id: 5,
+            name: "HU_HC_00001",
+            checked: false,
+          },
+          {
+            id: 6,
+            name: "HU_HC_00002",
+            checked: false,
+          },
+          {
+            id: 7,
+            name: "HU_HC_00003",
+            checked: false,
+          },
+        ]);
+        useEffect(() => {
+          // console.count("设置全选");
+          setCheckAll(
+            list.filter((item) => item.checked).length == list.length
+          );
+        }, [list]);
+
+        // 全选按钮改变之后
+        useEffect(() => {
+          if (isCheckAllClicked) {
+            setList(
+              list.map((item) => {
+                item.checked = checkAll;
+                return item; //  需要有一个返回值，否则会出错
+              })
+            );
+            setCheckAllClick(false);
+          }
+        }, [checkAll]);
+        return (
+          <div>
+            <p>
+              <label
+                onClick={() => {
+                  setCheckAllClick(true);
+                  setCheckAll(!checkAll);
+                }}
+              >
+                <input onChange={() => {}} type="checkbox" checked={checkAll} />
+                全选
+              </label>
+            </p>
+            <ul>
+              {list.map((item) => (
+                <li key={item.id}>
+                  <label
+                    onClick={() => {
+                      // console.count(111);
+                      list.find((i) => i.id == item.id).checked = !list.find(
+                        (i) => i.id == item.id
+                      ).checked;
+                      //  如果不浅拷贝的话，尽管效果变了，但是 list.checked值不会随着点击而改变
+                      setList([...list]); 
+                    }}
+                  >
+                    <input
+                      onChange={() => {}}
+                      checked={item.checked}
+                      type="checkbox"
+                    />
+                    {item.name}
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      }
     // 弹窗
     const BootstrapDialog = styled(Dialog)(({ theme }) => ({
         '& .MuiDialogContent-root': {
@@ -164,13 +265,22 @@ const customerInformation = () => {
     };
     // 按钮组件
     const classes = useStyles();
-    // 弹窗
-    const [open, setOpen] = React.useState(false);
-    const handleClickOpen = () => {
-        setOpen(true);
+    // 增加客户信息弹窗
+    const [open1, setOpen1] = React.useState(false);
+    const handleClickOpen1 = () => {
+        setOpen1(true);
     };
-    const handleClose = () => {
-        setOpen(false);
+    const handleClose1 = () => {
+        setOpen1(false);
+    };
+    // 绑定终端弹窗
+    const [open2, setOpen2] = React.useState(false);
+    const handleClickOpen2 = () => {
+        console.log('here');
+        setOpen2(true);
+    };
+    const handleClose2 = () => {
+        setOpen2(false);
     };
     // 表格
     const columns = [
@@ -241,7 +351,7 @@ const customerInformation = () => {
         console.log(rows);
 
         const element = document.getElementById('customerDetail');
-
+        
         ReactDOM.render(
             rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                 return (
@@ -258,8 +368,49 @@ const customerInformation = () => {
                         }
                         else{
                             return (
-                            <TableCell key={column.id} align={column.align}>
-                                <Button id={column.id} variant="outlined">{typeof value === 'boolean' ? dataStateSet(value) : value}</Button>
+                                <TableCell key={column.id} align={column.align}>
+                                <Button id={column.id} variant="outlined" onClick={handleClickOpen2}>{value}</Button>
+                                <BootstrapDialog
+                                        onClose={handleClose2}
+                                        aria-labelledby="customized-dialog-title1"
+                                        open={open2}>
+                                        <BootstrapDialogTitle id="customized-dialog-title1" onClose={handleClose2}>
+                                            绑定终端
+                                        </BootstrapDialogTitle>
+                                        <DialogContent dividers>
+                                            <table style={{ minWidth: '565px'}}>
+                                                <tr>
+                                                    <td style={{ width: '15%', textAlign: 'left' }}>
+                                                        客户代码:
+                                                    </td>
+                                                    <td style={{ width: '20%', textAlign: 'center' ,fontWeight:'bold' }}>
+                                                        {windowsData.customerCode}
+                                                    </td>
+                                                    <td style={{ width: '15%', textAlign: 'left' }}>
+                                                        客户名称:
+                                                    </td>
+                                                    <td style={{ width: '13%', textAlign: 'center' ,fontWeight:'bold' }}>
+                                                        {windowsData.customerName}
+                                                    </td>
+                                                    <td style={{ width: '15%', textAlign: 'left' }}>
+                                                        公司编码:
+                                                    </td>
+                                                    <td style={{ width: '15%', textAlign: 'center' ,fontWeight:'bold'}}>
+                                                        {windowsData.companyCode}  
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <br /><br />
+                                            <div>终端列表</div>
+                                            <hr />
+                                            <CheckAll></CheckAll>
+                                        </DialogContent>
+                                        <DialogActions>
+                                            <Button autoFocus variant="contained" onClick={handleClickOpen2} size="medium" color="primary" className={classes.margin} style={{ margin: 'auto' }}>
+                                                提交
+                                            </Button>
+                                        </DialogActions>
+                                    </BootstrapDialog>
                             </TableCell>
                             )
                         }
@@ -268,6 +419,7 @@ const customerInformation = () => {
                 );
                 })
         ,element);
+        
     }
 
     const resetSearch = () =>{
@@ -337,14 +489,14 @@ const customerInformation = () => {
                             <br></br>
                             <form id="sinsertForm" autoComplete="on" onSubmit={onSubmit}>
                                 <span>
-                                    <Button variant="contained" onClick={handleClickOpen} size="medium" color="primary" className={classes.margin}>
+                                    <Button variant="contained" onClick={handleClickOpen1} size="medium" color="primary" className={classes.margin}>
                                         + 新增客户
                                     </Button>
                                     <BootstrapDialog
-                                        onClose={handleClose}
-                                        aria-labelledby="customized-dialog-title"
-                                        open={open}>
-                                        <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose}>
+                                        onClose={handleClose1}
+                                        aria-labelledby="customized-dialog-title1"
+                                        open={open1}>
+                                        <BootstrapDialogTitle id="customized-dialog-title1" onClose={handleClose1}>
                                             新增客户
                                         </BootstrapDialogTitle>
                                         <DialogContent dividers>
@@ -567,30 +719,6 @@ const customerInformation = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody id='customerDetail'>
-                        {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                        return (
-                            <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
-                            {columns.map((column) => {
-                                const value = row[column.id];
-
-                                if(column.id !== 'customerCode')
-                                { return (
-                                <TableCell key={column.id} align={column.align}>
-                                    {typeof value === 'boolean' ? dataStateSet(value) : value}
-                                </TableCell>
-                                );
-                                }
-                                else{
-                                    return (
-                                    <TableCell key={column.id} align={column.align}>
-                                        <Button id={column.id} variant="outlined">{typeof value === 'boolean' ? dataStateSet(value) : value}</Button>
-                                    </TableCell>
-                                    )
-                                }
-                            })}
-                            </TableRow>
-                        );
-                        })}
                     </TableBody>
                 </Table>
             </TableContainer>
