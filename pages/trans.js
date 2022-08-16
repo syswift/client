@@ -317,10 +317,10 @@ const ondelete = async (event) =>{
       else{
 
         const transId = document.getElementById('StransId').value;
-        const customerId = document.getElementById('ScustomerSelect').innerText;
-        const termId = document.getElementById('SterminalSelect').innerText;
-        const transStateString = document.getElementById('SturnoverStateSelect').innerText;
-        const transType = document.getElementById('SturnoverTypeSelect').innerText;
+        const customerId = document.getElementById('ScustomerSelect').value;
+        const termId = document.getElementById('SterminalSelect').value;
+        const transStateString = document.getElementById('SturnoverStateSelect').value;
+        const transType = document.getElementById('SturnoverTypeSelect').value;
 
         //console.log(transStateString);
 
@@ -783,14 +783,15 @@ const ondelete = async (event) =>{
                     查询
                   </Button>
                 </span>
-
+                {/*
                 &emsp;&emsp;
-
+               
                 <span>
                 <Button variant="outlined" onClick={resetSearch} color="primary">
                     重置
                   </Button>
                 </span>
+                */}
                 
               <br></br>
               <br></br>
