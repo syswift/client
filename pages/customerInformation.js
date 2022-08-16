@@ -36,7 +36,9 @@ import * as ReactDOM from 'react-dom';
 import {checkAuth} from '../api/checkAuth';
 
 const customerInformation = () => {
+
     privateRoute();
+
     // 终端绑定的复选框
     const { useState, useEffect } = React;
     function CheckAll() {
@@ -80,7 +82,7 @@ const customerInformation = () => {
             checked: false,
           },
         ]);
-        useEffect(() => {
+        useEffect(async() => {
           // console.count("设置全选");
           setCheckAll(
             list.filter((item) => item.checked).length == list.length
@@ -276,7 +278,40 @@ const customerInformation = () => {
     };
     // 绑定终端弹窗
     const [open2, setOpen2] = React.useState(false);
-    const handleClickOpen2 = () => {
+    const handleClickOpen2 = async () => {
+        const auth = await checkAuth();
+        let all;
+    
+        if(auth === '管理' || auth === '销售')
+        {
+            all = await supabase.from('terminal').select();
+        }
+        console.log(all);
+
+        /*
+        list.map((item) => (
+            <li key={item.id}>
+              <label
+                onClick={() => {
+                  // console.count(111);
+                  list.find((i) => i.id == item.id).checked = !list.find(
+                    (i) => i.id == item.id
+                  ).checked;
+                  //  如果不浅拷贝的话，尽管效果变了，但是 list.checked值不会随着点击而改变
+                  setList([...list]); 
+                }}
+              >
+                <input
+                  onChange={() => {}}
+                  checked={item.checked}
+                  type="checkbox"
+                />
+                {item.name}
+              </label>
+            </li>
+          ))
+          */
+
         console.log('here');
         setOpen2(true);
     };
